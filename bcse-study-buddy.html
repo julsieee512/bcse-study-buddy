@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>BCSE Study Buddy</title>
+<style>
+/* ===== CSS RESET & VARIABLES ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --teal: #0d9488;
+  --teal-dark: #0f766e;
+  --teal-light: #99f6e4;
+  --teal-bg: #f0fdfa;
+  --white: #ffffff;
+  --grey-50: #f8fafc;
+  --grey-100: #f1f5f9;
+  --grey-200: #e2e8f0;
+  --grey-300: #cbd5e1;
+  --grey-400: #94a3b8;
+  --grey-500: #64748b;
+  --grey-600: #475569;
+  --grey-700: #334155;
+  --grey-800: #1e293b;
+  --grey-900: #0f172a;
+  --green: #16a34a;
+  --green-bg: #f0fdf4;
+  --green-border: #86efac;
+  --red: #dc2626;
+  --red-bg: #fef2f2;
+  --red-border: #fca5a5;
+  --orange: #ea580c;
+  --blue: #2563eb;
+  --card-radius: 16px;
+  --btn-radius: 12px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.05);
+  --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --transition: 0.2s ease;
+}
+
+/* ===== COMMUTE MODE (high contrast) ===== */
+body.commute-mode {
+  --teal: #00e6d0;
+  --teal-dark: #00ccb8;
+  --teal-light: #003d36;
+  --teal-bg: #0a0a0a;
+  --white: #111111;
+  --grey-50: #1a1a1a;
+  --grey-100: #222222;
+  --grey-200: #333333;
+  --grey-300: #444444;
+  --grey-400: #888888;
+  --grey-500: #aaaaaa;
+  --grey-600: #cccccc;
+  --grey-700: #dddddd;
+  --grey-800: #eeeeee;
+  --grey-900: #f5f5f5;
+  --green: #4ade80;
+  --green-bg: #052e16;
+  --green-border: #166534;
+  --red: #f87171;
+  --red-bg: #2a0a0a;
+  --red-border: #7f1d1d;
+  --card-radius: 16px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.5);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.5);
+}
+
+/* ===== BASE ===== */
+html { font-size: 16px; }
+body {
+  font-family: var(--font);
+  background: var(--grey-50);
+  color: var(--grey-800);
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+}
+
+/* ===== HEADER ===== */
+.app-header {
+  background: var(--teal);
+  color: var(--white);
+  padding: 16px 20px 12px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-md);
+}
+.app-header .top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.app-header h1 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  color: #ffffff;
+}
+.app-header .subtitle {
+  font-size: 0.7rem;
+  opacity: 0.85;
+  font-weight: 400;
+  display: block;
+  color: #ccfbf1;
+}
+.commute-toggle {
+  background: rgba(255,255,255,0.15);
+  border: 1.5px solid rgba(255,255,255,0.3);
+  color: #ffffff;
+  font-size: 0.72rem;
+  padding: 6px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+.commute-toggle:active { background: rgba(255,255,255,0.3); }
+body.commute-mode .commute-toggle {
+  background: rgba(0,230,208,0.2);
+  border-color: var(--teal);
+  color: var(--teal);
+}
+
+/* ===== NAV TABS ===== */
+.nav-tabs {
+  display: flex;
+  gap: 4px;
+  background: rgba(0,0,0,0.15);
+  border-radius: 10px;
+  padding: 3px;
+}
+.nav-tab {
+  flex: 1;
+  padding: 10px 6px;
+  border: none;
+  background: transparent;
+  color: rgba(255,255,255,0.7);
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: center;
+}
+.nav-tab.active {
+  background: rgba(255,255,255,0.95);
+  color: var(--teal-dark);
+  box-shadow: var(--shadow);
+}
+.nav-tab:not(.active):active {
+  background: rgba(255,255,255,0.15);
+}
+body.commute-mode .nav-tab.active {
+  background: var(--teal);
+  color: #000;
+}
+
+/* ===== MAIN CONTENT ===== */
+.main-content {
+  flex: 1;
+  padding: 16px;
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ===== SCREEN VISIBILITY ===== */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ===== PROGRESS BAR (global) ===== */
+.progress-strip {
+  background: var(--grey-200);
+  height: 6px;
+  border-radius: 3px;
+  margin: 0 20px 0;
+  overflow: hidden;
+}
+.progress-strip .fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--teal), var(--green));
+  border-radius: 3px;
+  transition: width 0.5s ease;
+  width: 0%;
+}
+
+/* ===== CATEGORY BADGE ===== */
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.badge-anatomy { background: #dbeafe; color: #1e40af; }
+.badge-pharma { background: #fce7f3; color: #9d174d; }
+.badge-path { background: #fef3c7; color: #92400e; }
+.badge-clinical { background: #d1fae5; color: #065f46; }
+.badge-physio { background: #ede9fe; color: #5b21b6; }
+.badge-micro { background: #ffedd5; color: #9a3412; }
+body.commute-mode .badge-anatomy { background: #1e3a5f; color: #93c5fd; }
+body.commute-mode .badge-pharma { background: #4a1942; color: #f9a8d4; }
+body.commute-mode .badge-path { background: #451a03; color: #fcd34d; }
+body.commute-mode .badge-clinical { background: #052e16; color: #6ee7b7; }
+body.commute-mode .badge-physio { background: #2e1065; color: #c4b5fd; }
+body.commute-mode .badge-micro { background: #431407; color: #fdba74; }
+
+.species-tag {
+  font-size: 0.65rem;
+  color: var(--grey-500);
+  font-weight: 600;
+  margin-left: 6px;
+}
+
+/* ============================================
+   STUDY MODE - FLASHCARDS
+   ============================================ */
+.card-counter {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--grey-500);
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+.flashcard-container {
+  perspective: 1000px;
+  margin-bottom: 20px;
+  min-height: 320px;
+}
+.flashcard {
+  position: relative;
+  width: 100%;
+  min-height: 320px;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  transition: transform 0.5s ease;
+}
+.flashcard.flipped { transform: rotateY(180deg); }
+
+.flashcard-face {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  min-height: 320px;
+  backface-visibility: hidden;
+  border-radius: var(--card-radius);
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-lg);
+}
+.flashcard-front {
+  background: var(--white);
+  border: 2px solid var(--grey-200);
+}
+.flashcard-back {
+  background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+  color: #ffffff;
+  transform: rotateY(180deg);
+}
+.flashcard-face .card-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.6;
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+.flashcard-front .card-label { color: var(--teal); opacity: 1; }
+.flashcard-face .card-meta {
+  margin-bottom: 16px;
+}
+.flashcard-face .card-body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.flashcard-face .card-body p {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  font-weight: 500;
+}
+.flashcard-back .card-body p {
+  font-size: 0.98rem;
+}
+.flashcard-face .tap-hint {
+  text-align: center;
+  font-size: 0.72rem;
+  opacity: 0.5;
+  margin-top: 12px;
+  font-weight: 500;
+}
+.study-nav {
+  display: flex;
+  gap: 12px;
+}
+.study-nav button {
+  flex: 1;
+  padding: 16px;
+  border: none;
+  border-radius: var(--btn-radius);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.btn-prev {
+  background: var(--grey-200);
+  color: var(--grey-700);
+}
+.btn-next {
+  background: var(--teal);
+  color: #ffffff;
+}
+.btn-prev:active { background: var(--grey-300); }
+.btn-next:active { background: var(--teal-dark); }
+.btn-mark-known {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  margin-top: 10px;
+  border: 2px solid var(--green);
+  background: var(--green-bg);
+  color: var(--green);
+  border-radius: var(--btn-radius);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.btn-mark-known:active { background: var(--green); color: #fff; }
+.btn-mark-known.marked {
+  background: var(--green);
+  color: #fff;
+  border-color: var(--green);
+}
+
+/* ============================================
+   QUIZ MODE
+   ============================================ */
+.quiz-header {
+  text-align: center;
+  margin-bottom: 16px;
+}
+.quiz-header .q-number {
+  font-size: 0.78rem;
+  color: var(--grey-500);
+  font-weight: 600;
+}
+.quiz-header .q-score {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--teal);
+}
+.quiz-card {
+  background: var(--white);
+  border-radius: var(--card-radius);
+  padding: 24px 20px;
+  box-shadow: var(--shadow-lg);
+  border: 2px solid var(--grey-200);
+  margin-bottom: 16px;
+}
+.quiz-card .q-meta { margin-bottom: 14px; }
+.quiz-card .q-text {
+  font-size: 1.02rem;
+  line-height: 1.6;
+  font-weight: 600;
+  color: var(--grey-800);
+  margin-bottom: 20px;
+}
+.quiz-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.quiz-option {
+  width: 100%;
+  padding: 16px 18px;
+  border: 2px solid var(--grey-200);
+  border-radius: var(--btn-radius);
+  background: var(--grey-50);
+  color: var(--grey-800);
+  font-size: 0.92rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: left;
+  line-height: 1.4;
+}
+.quiz-option:active:not(.disabled) {
+  border-color: var(--teal);
+  background: var(--teal-bg);
+}
+.quiz-option.correct {
+  border-color: var(--green) !important;
+  background: var(--green-bg) !important;
+  color: var(--green) !important;
+  font-weight: 700;
+}
+.quiz-option.incorrect {
+  border-color: var(--red) !important;
+  background: var(--red-bg) !important;
+  color: var(--red) !important;
+}
+.quiz-option.disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+.quiz-option.correct.disabled { opacity: 1; }
+.quiz-explanation {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 12px;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  display: none;
+}
+.quiz-explanation.show { display: block; }
+.quiz-explanation.correct-exp {
+  background: var(--green-bg);
+  border: 1.5px solid var(--green-border);
+  color: var(--grey-800);
+}
+.quiz-explanation.incorrect-exp {
+  background: var(--red-bg);
+  border: 1.5px solid var(--red-border);
+  color: var(--grey-800);
+}
+.quiz-explanation strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.quiz-explanation.correct-exp strong { color: var(--green); }
+.quiz-explanation.incorrect-exp strong { color: var(--red); }
+
+.btn-next-q {
+  display: none;
+  width: 100%;
+  padding: 16px;
+  margin-top: 12px;
+  border: none;
+  border-radius: var(--btn-radius);
+  background: var(--teal);
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.btn-next-q.show { display: block; }
+.btn-next-q:active { background: var(--teal-dark); }
+
+/* Quiz complete */
+.quiz-complete {
+  text-align: center;
+  padding: 40px 20px;
+}
+.quiz-complete .score-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 6px solid var(--teal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--teal);
+}
+.quiz-complete h2 {
+  font-size: 1.3rem;
+  color: var(--grey-800);
+  margin-bottom: 8px;
+}
+.quiz-complete p {
+  color: var(--grey-500);
+  font-size: 0.9rem;
+  margin-bottom: 24px;
+}
+.btn-restart {
+  padding: 16px 40px;
+  border: none;
+  border-radius: var(--btn-radius);
+  background: var(--teal);
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* ============================================
+   PROGRESS SCREEN
+   ============================================ */
+.progress-screen h2 {
+  font-size: 1.15rem;
+  color: var(--grey-800);
+  margin-bottom: 16px;
+  font-weight: 700;
+}
+.stat-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: var(--white);
+  border-radius: var(--card-radius);
+  padding: 20px 16px;
+  text-align: center;
+  box-shadow: var(--shadow);
+  border: 1.5px solid var(--grey-200);
+}
+.stat-card .stat-value {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--teal);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.stat-card .stat-label {
+  font-size: 0.72rem;
+  color: var(--grey-500);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.progress-bar-section {
+  background: var(--white);
+  border-radius: var(--card-radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  border: 1.5px solid var(--grey-200);
+  margin-bottom: 20px;
+}
+.progress-bar-section h3 {
+  font-size: 0.88rem;
+  color: var(--grey-700);
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+.progress-bar-track {
+  background: var(--grey-200);
+  height: 14px;
+  border-radius: 7px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.progress-bar-track .fill {
+  height: 100%;
+  border-radius: 7px;
+  background: linear-gradient(90deg, var(--teal), var(--green));
+  transition: width 0.6s ease;
+}
+.progress-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--grey-500);
+  font-weight: 600;
+}
+.category-breakdown {
+  background: var(--white);
+  border-radius: var(--card-radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  border: 1.5px solid var(--grey-200);
+  margin-bottom: 20px;
+}
+.category-breakdown h3 {
+  font-size: 0.88rem;
+  color: var(--grey-700);
+  margin-bottom: 14px;
+  font-weight: 700;
+}
+.cat-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--grey-100);
+}
+.cat-row:last-child { border-bottom: none; }
+.cat-row .cat-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--grey-700);
+}
+.cat-row .cat-score {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--teal);
+}
+.btn-reset {
+  width: 100%;
+  padding: 14px;
+  border: 2px solid var(--red);
+  background: transparent;
+  color: var(--red);
+  border-radius: var(--btn-radius);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.btn-reset:active { background: var(--red); color: #fff; }
+
+/* ===== UTILITY ===== */
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); border: 0;
+}
+@media (min-width: 480px) {
+  .main-content { padding: 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="app-header">
+  <div class="top-row">
+    <h1>BCSE Study Buddy<span class="subtitle">Canadian Veterinary Exam Prep</span></h1>
+    <button class="commute-toggle" onclick="toggleCommuteMode()" aria-label="Toggle commute mode">Commute Mode</button>
+  </div>
+  <nav class="nav-tabs" role="tablist">
+    <button class="nav-tab active" onclick="switchScreen('study')" role="tab" aria-selected="true">Study</button>
+    <button class="nav-tab" onclick="switchScreen('quiz')" role="tab" aria-selected="false">Quiz</button>
+    <button class="nav-tab" onclick="switchScreen('progress')" role="tab" aria-selected="false">Progress</button>
+  </nav>
+</header>
+<div class="progress-strip"><div class="fill" id="globalProgress"></div></div>
+
+<!-- ===== MAIN ===== -->
+<main class="main-content">
+
+  <!-- STUDY SCREEN -->
+  <section class="screen active" id="studyScreen">
+    <div class="card-counter" id="cardCounter">1 / 10</div>
+    <div class="flashcard-container" onclick="flipCard()">
+      <div class="flashcard" id="flashcard">
+        <div class="flashcard-face flashcard-front" id="cardFront">
+          <div class="card-label">Question</div>
+          <div class="card-meta" id="cardFrontMeta"></div>
+          <div class="card-body"><p id="cardQuestion"></p></div>
+          <div class="tap-hint">Tap to reveal answer</div>
+        </div>
+        <div class="flashcard-face flashcard-back" id="cardBack">
+          <div class="card-label">Answer</div>
+          <div class="card-body"><p id="cardAnswer"></p></div>
+          <div class="tap-hint">Tap to see question</div>
+        </div>
+      </div>
+    </div>
+    <div class="study-nav">
+      <button class="btn-prev" onclick="prevCard()">&larr; Prev</button>
+      <button class="btn-next" onclick="nextCard()">Next &rarr;</button>
+    </div>
+    <button class="btn-mark-known" id="btnMark" onclick="toggleMastered()">Mark as Mastered</button>
+  </section>
+
+  <!-- QUIZ SCREEN -->
+  <section class="screen" id="quizScreen">
+    <div id="quizActive">
+      <div class="quiz-header">
+        <span class="q-number" id="qNumber">Question 1 of 10</span>
+        <br>
+        <span class="q-score" id="qScore">Score: 0 / 0</span>
+      </div>
+      <div class="quiz-card">
+        <div class="q-meta" id="qMeta"></div>
+        <p class="q-text" id="qText"></p>
+        <div class="quiz-options" id="qOptions"></div>
+        <div class="quiz-explanation" id="qExplanation">
+          <strong id="qExpLabel"></strong>
+          <span id="qExpText"></span>
+        </div>
+      </div>
+      <button class="btn-next-q" id="btnNextQ" onclick="nextQuestion()">Next Question &rarr;</button>
+    </div>
+    <div class="quiz-complete" id="quizComplete" style="display:none;">
+      <div class="score-circle" id="finalScore">0%</div>
+      <h2 id="finalMessage">Great job!</h2>
+      <p id="finalDetail">You've completed the quiz.</p>
+      <button class="btn-restart" onclick="restartQuiz()">Try Again</button>
+    </div>
+  </section>
+
+  <!-- PROGRESS SCREEN -->
+  <section class="screen" id="progressScreen">
+    <h2>Your Progress</h2>
+    <div class="stat-cards">
+      <div class="stat-card">
+        <div class="stat-value" id="statMastered">0</div>
+        <div class="stat-label">Cards Mastered</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statQuizScore">0%</div>
+        <div class="stat-label">Best Quiz Score</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statStudied">0</div>
+        <div class="stat-label">Cards Studied</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statStreak">0</div>
+        <div class="stat-label">Day Streak</div>
+      </div>
+    </div>
+    <div class="progress-bar-section">
+      <h3>Mastery Progress</h3>
+      <div class="progress-bar-track"><div class="fill" id="masteryFill"></div></div>
+      <div class="progress-bar-label">
+        <span id="masteryCount">0 / 10 cards</span>
+        <span id="masteryPct">0%</span>
+      </div>
+    </div>
+    <div class="category-breakdown">
+      <h3>By Category</h3>
+      <div id="catBreakdown"></div>
+    </div>
+    <button class="btn-reset" onclick="resetProgress()">Reset All Progress</button>
+  </section>
+
+</main>
+
+<script>
+/* =============================================================
+   BCSE STUDY BUDDY — DATA & LOGIC
+   =============================================================
+   Content is based on standard veterinary medical education
+   aligned with the BCSE syllabus domains.
+   ============================================================= */
+
+// ===== FLASHCARD DATA =====
+const flashcards = [
+  {
+    id: 1,
+    category: "Anatomy",
+    categoryClass: "badge-anatomy",
+    species: "Equine",
+    question: "Which domestic species lacks a gallbladder?",
+    answer: "The horse. Bile is continuously secreted from the liver directly into the duodenum via the common bile duct. Horses also lack a distinct cecal appendix, and the right ventral colon is the primary site of large-colon impaction."
+  },
+  {
+    id: 2,
+    category: "Anatomy",
+    categoryClass: "badge-anatomy",
+    species: "Bovine",
+    question: "Name the four compartments of the ruminant forestomach and true stomach, in order from esophagus to duodenum.",
+    answer: "Rumen, Reticulum, Omasum, Abomasum. The rumen and reticulum communicate freely (reticulo-rumen). The abomasum is the 'true' glandular stomach, analogous to the monogastric stomach, and is the primary site of acid and enzymatic digestion."
+  },
+  {
+    id: 3,
+    category: "Pharmacology",
+    categoryClass: "badge-pharma",
+    species: "Small Animal",
+    question: "What is the mechanism of action of meloxicam, and what are its primary therapeutic effects?",
+    answer: "Meloxicam is a preferential COX-2 inhibitor (NSAID). It reduces prostaglandin synthesis, providing anti-inflammatory, analgesic, and antipyretic effects. It is commonly used for osteoarthritis pain in dogs and peri-operative pain management."
+  },
+  {
+    id: 4,
+    category: "Pharmacology",
+    categoryClass: "badge-pharma",
+    species: "Bovine / Equine",
+    question: "Why must xylazine (an alpha-2 adrenergic agonist) be dosed much lower in cattle than in horses?",
+    answer: "Cattle are approximately 10 times more sensitive to xylazine than horses. The typical bovine dose is 0.05–0.1 mg/kg IV, compared to 0.5–1.1 mg/kg IV in horses. Overdosing in cattle can cause severe respiratory depression, bloat due to recumbency, and prolonged recovery."
+  },
+  {
+    id: 5,
+    category: "Pathology",
+    categoryClass: "badge-path",
+    species: "Bovine",
+    question: "What is traumatic reticulopericarditis (hardware disease) in cattle, and how is it prevented?",
+    answer: "A condition where ingested metallic foreign bodies (nails, wire) lodge in the reticulum and can penetrate the diaphragm to reach the pericardium, causing pericarditis. Prevention: administer a rumen magnet (cow magnet) orally, which sits in the reticulum and attracts metallic debris before it can cause damage."
+  },
+  {
+    id: 6,
+    category: "Pathology",
+    categoryClass: "badge-path",
+    species: "Small Animal",
+    question: "Describe the classic clinical presentation of canine parvovirus (CPV-2) infection.",
+    answer: "Severe hemorrhagic gastroenteritis: foul-smelling, bloody diarrhea, profuse vomiting, lethargy, fever progressing to hypothermia, and dehydration. Hallmark lab finding is marked leukopenia (low WBC). Primarily affects unvaccinated puppies aged 6 weeks to 6 months. High mortality without aggressive fluid therapy and supportive care."
+  },
+  {
+    id: 7,
+    category: "Clinical",
+    categoryClass: "badge-clinical",
+    species: "Small Animal",
+    question: "What is GDV and why is it a life-threatening surgical emergency?",
+    answer: "Gastric Dilatation-Volvulus: the stomach distends with gas (dilatation) and then rotates on its mesenteric axis (volvulus), occluding the cardia and pylorus. This traps gas, compromises venous return (compresses caudal vena cava), causes hypovolemic and distributive shock, and leads to gastric wall necrosis and splenic torsion. Requires immediate stabilization and surgical correction (derotation + gastropexy)."
+  },
+  {
+    id: 8,
+    category: "Clinical",
+    categoryClass: "badge-clinical",
+    species: "Equine",
+    question: "What are the main categories of equine colic, and which type is the most urgent surgical emergency?",
+    answer: "Main categories: (1) Spasmodic/gas colic — intestinal spasm, often self-limiting; (2) Impaction — feed material obstruction, commonly at the pelvic flexure; (3) Displacement — includes nephrosplenic entrapment and large-colon volvulus; (4) Strangulating — compromised blood supply (e.g., small intestinal volvulus, pedunculated lipoma). Strangulating lesions are the most urgent — they cause rapid intestinal necrosis and require emergency surgery."
+  },
+  {
+    id: 9,
+    category: "Physiology",
+    categoryClass: "badge-physio",
+    species: "Bovine",
+    question: "What is milk fever (parturient paresis), and how is it treated?",
+    answer: "Acute hypocalcemia occurring most commonly in high-producing dairy cows within 72 hours of calving. The sudden demand for calcium for colostrum/milk production exceeds the cow's ability to mobilize calcium from bone and absorb it from the gut. Clinical signs: muscle tremors, ataxia, recumbency, decreased rumen motility, and circulatory collapse. Treatment: slow IV calcium borogluconate with cardiac auscultation (rapid infusion can cause cardiac arrest)."
+  },
+  {
+    id: 10,
+    category: "Microbiology",
+    categoryClass: "badge-micro",
+    species: "Small Animal",
+    question: "What is the primary causative agent of kennel cough (infectious tracheobronchitis) and how is it transmitted?",
+    answer: "The primary bacterial pathogen is Bordetella bronchiseptica, frequently co-infected with canine parainfluenza virus (CPIV) and/or canine adenovirus-2. Transmitted via aerosolized respiratory secretions in close-contact environments (shelters, boarding). Clinical sign: harsh, honking cough, often with a terminal retch. Usually self-limiting in immunocompetent dogs but can progress to bronchopneumonia in puppies or immunocompromised dogs."
+  }
+];
+
+// ===== QUIZ DATA =====
+const quizQuestions = [
+  {
+    id: 1, category: "Anatomy", categoryClass: "badge-anatomy", species: "Equine",
+    question: "Which of the following domestic species lacks a gallbladder?",
+    options: ["Dog", "Cat", "Horse", "Pig"],
+    correct: 2,
+    explanation: "The horse lacks a gallbladder. Bile is produced by the liver and flows continuously into the duodenum via the common bile duct, rather than being stored and released intermittently."
+  },
+  {
+    id: 2, category: "Anatomy", categoryClass: "badge-anatomy", species: "Bovine",
+    question: "In the ruminant digestive system, which compartment is considered the 'true stomach' (glandular stomach)?",
+    options: ["Rumen", "Reticulum", "Omasum", "Abomasum"],
+    correct: 3,
+    explanation: "The abomasum is the glandular ('true') stomach of ruminants, analogous to the stomach of monogastric animals. It secretes HCl and pepsinogen for enzymatic digestion. The rumen, reticulum, and omasum are forestomach compartments lined with non-glandular mucosa."
+  },
+  {
+    id: 3, category: "Pharmacology", categoryClass: "badge-pharma", species: "Bovine",
+    question: "Compared to horses, the dose of xylazine in cattle should be approximately:",
+    options: ["The same", "Double", "One-half (1/2)", "One-tenth (1/10)"],
+    correct: 3,
+    explanation: "Cattle are approximately 10 times more sensitive to xylazine than horses. The bovine dose is about 1/10th the equine dose (0.05–0.1 mg/kg IV in cattle vs. 0.5–1.1 mg/kg IV in horses). Overdosing can cause severe respiratory depression and prolonged recumbency leading to bloat."
+  },
+  {
+    id: 4, category: "Pathology", categoryClass: "badge-path", species: "Small Animal",
+    question: "What is the hallmark clinical and laboratory finding in canine parvovirus (CPV-2) infection?",
+    options: [
+      "Chronic cough and nasal discharge",
+      "Hemorrhagic diarrhea and leukopenia",
+      "Polyuria and polydipsia",
+      "Multifocal skin lesions and eosinophilia"
+    ],
+    correct: 1,
+    explanation: "CPV-2 targets rapidly dividing cells — intestinal crypt epithelium (causing hemorrhagic diarrhea) and bone marrow precursors (causing leukopenia, specifically lymphopenia and neutropenia). The combination of severe bloody diarrhea with a markedly low WBC count is characteristic."
+  },
+  {
+    id: 5, category: "Physiology", categoryClass: "badge-physio", species: "Bovine",
+    question: "The appropriate treatment for milk fever (parturient paresis) in a dairy cow is:",
+    options: [
+      "IV dextrose (50%)",
+      "IV calcium borogluconate",
+      "Oral magnesium sulfate",
+      "IM iron dextran"
+    ],
+    correct: 1,
+    explanation: "Milk fever is caused by acute hypocalcemia around calving. IV calcium borogluconate is the standard treatment — it must be administered slowly while monitoring heart rate, as rapid calcium infusion can cause fatal cardiac arrhythmias (bradycardia, cardiac arrest)."
+  },
+  {
+    id: 6, category: "Clinical", categoryClass: "badge-clinical", species: "Small Animal",
+    question: "In the abbreviation GDV, a life-threatening surgical emergency in dogs, what does the 'V' stand for?",
+    options: ["Viral", "Vascular", "Volvulus", "Ventricular"],
+    correct: 2,
+    explanation: "GDV = Gastric Dilatation-Volvulus. The stomach fills with gas (dilatation) and rotates on its mesenteric axis (volvulus), trapping gas, obstructing blood flow, and causing hypovolemic shock. Requires emergency surgical derotation and gastropexy."
+  },
+  {
+    id: 7, category: "Microbiology", categoryClass: "badge-micro", species: "Small Animal",
+    question: "The primary bacterial causative agent of kennel cough (infectious tracheobronchitis) is:",
+    options: ["Escherichia coli", "Bordetella bronchiseptica", "Staphylococcus pseudintermedius", "Clostridium perfringens"],
+    correct: 1,
+    explanation: "Bordetella bronchiseptica is the primary bacterial pathogen in kennel cough, often acting synergistically with viral agents (canine parainfluenza virus, canine adenovirus-2). It colonizes the respiratory epithelium and produces toxins that impair mucociliary clearance."
+  },
+  {
+    id: 8, category: "Pathology", categoryClass: "badge-path", species: "Bovine",
+    question: "Traumatic reticulopericarditis (hardware disease) in cattle is best prevented by:",
+    options: ["Prophylactic antibiotics", "Annual vaccination", "Oral administration of a rumen magnet", "Routine deworming"],
+    correct: 2,
+    explanation: "A rumen (cow) magnet is administered orally and settles in the reticulum, where it attracts and retains metallic foreign bodies (nails, wire fragments) before they can penetrate the reticular wall and damage the diaphragm or pericardium."
+  },
+  {
+    id: 9, category: "Clinical", categoryClass: "badge-clinical", species: "Equine",
+    question: "Which category of equine colic is the most urgent surgical emergency due to compromised intestinal blood supply?",
+    options: ["Spasmodic (gas) colic", "Simple impaction colic", "Strangulating colic", "Spasmodic colic with mild tympany"],
+    correct: 2,
+    explanation: "Strangulating lesions (e.g., small intestinal volvulus, pedunculated lipoma entrapment) occlude the mesenteric blood supply, causing rapid ischemic necrosis of the affected bowel. Without emergency surgery, these are rapidly fatal. Non-strangulating forms often respond to medical management."
+  },
+  {
+    id: 10, category: "Pharmacology", categoryClass: "badge-pharma", species: "Small Animal",
+    question: "Meloxicam achieves its anti-inflammatory effect primarily by inhibiting which enzyme?",
+    options: ["Lipoxygenase (LOX)", "Cyclooxygenase-2 (COX-2)", "GABA transaminase", "Angiotensin-converting enzyme (ACE)"],
+    correct: 1,
+    explanation: "Meloxicam is a preferential COX-2 inhibitor. By inhibiting cyclooxygenase-2, it reduces the synthesis of pro-inflammatory prostaglandins (especially PGE2) at sites of inflammation, providing analgesic, anti-inflammatory, and antipyretic effects while relatively sparing COX-1-mediated protective prostaglandins in the GI tract (though GI side effects can still occur)."
+  }
+];
+
+// ===== STATE =====
+let currentCard = 0;
+let isFlipped = false;
+let currentQuiz = 0;
+let quizScore = 0;
+let quizAnswered = 0;
+let quizLocked = false;
+
+// ===== PERSISTENCE =====
+function loadProgress() {
+  try {
+    const data = JSON.parse(localStorage.getItem('bcse_progress'));
+    return data || { mastered: [], bestScore: 0, studied: [], lastDate: null, streak: 0, quizHistory: {} };
+  } catch { return { mastered: [], bestScore: 0, studied: [], lastDate: null, streak: 0, quizHistory: {} }; }
+}
+function saveProgress(data) {
+  localStorage.setItem('bcse_progress', JSON.stringify(data));
+}
+
+// ===== COMMUTE MODE =====
+function toggleCommuteMode() {
+  document.body.classList.toggle('commute-mode');
+  const btn = document.querySelector('.commute-toggle');
+  btn.textContent = document.body.classList.contains('commute-mode') ? 'Normal Mode' : 'Commute Mode';
+}
+
+// ===== SCREEN NAV =====
+function switchScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => {
+    t.classList.remove('active');
+    t.setAttribute('aria-selected', 'false');
+  });
+  document.getElementById(name + 'Screen').classList.add('active');
+  const tabs = document.querySelectorAll('.nav-tab');
+  const idx = { study: 0, quiz: 1, progress: 2 }[name];
+  tabs[idx].classList.add('active');
+  tabs[idx].setAttribute('aria-selected', 'true');
+
+  if (name === 'progress') updateProgressScreen();
+  if (name === 'quiz') { if (quizAnswered === 0) loadQuizQuestion(); }
+  updateGlobalProgress();
+}
+
+// ===== STUDY MODE =====
+function loadCard() {
+  const card = flashcards[currentCard];
+  const progress = loadProgress();
+  document.getElementById('cardCounter').textContent = `${currentCard + 1} / ${flashcards.length}`;
+  document.getElementById('cardFrontMeta').innerHTML =
+    `<span class="badge ${card.categoryClass}">${card.category}</span><span class="species-tag">${card.species}</span>`;
+  document.getElementById('cardQuestion').textContent = card.question;
+  document.getElementById('cardAnswer').textContent = card.answer;
+
+  // Track as studied
+  if (!progress.studied.includes(card.id)) {
+    progress.studied.push(card.id);
+    updateStreak(progress);
+    saveProgress(progress);
+  }
+
+  // Mark button state
+  const btn = document.getElementById('btnMark');
+  if (progress.mastered.includes(card.id)) {
+    btn.classList.add('marked');
+    btn.textContent = 'Mastered!';
+  } else {
+    btn.classList.remove('marked');
+    btn.textContent = 'Mark as Mastered';
+  }
+
+  // Reset flip
+  isFlipped = false;
+  document.getElementById('flashcard').classList.remove('flipped');
+  updateGlobalProgress();
+}
+function flipCard() {
+  isFlipped = !isFlipped;
+  document.getElementById('flashcard').classList.toggle('flipped', isFlipped);
+}
+function nextCard() {
+  currentCard = (currentCard + 1) % flashcards.length;
+  loadCard();
+}
+function prevCard() {
+  currentCard = (currentCard - 1 + flashcards.length) % flashcards.length;
+  loadCard();
+}
+function toggleMastered() {
+  const progress = loadProgress();
+  const id = flashcards[currentCard].id;
+  const idx = progress.mastered.indexOf(id);
+  if (idx > -1) {
+    progress.mastered.splice(idx, 1);
+  } else {
+    progress.mastered.push(id);
+  }
+  saveProgress(progress);
+  loadCard();
+}
+
+// ===== QUIZ MODE =====
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+let shuffledQuiz = [];
+function restartQuiz() {
+  currentQuiz = 0;
+  quizScore = 0;
+  quizAnswered = 0;
+  quizLocked = false;
+  shuffledQuiz = shuffleArray(quizQuestions);
+  document.getElementById('quizActive').style.display = 'block';
+  document.getElementById('quizComplete').style.display = 'none';
+  loadQuizQuestion();
+}
+function loadQuizQuestion() {
+  if (shuffledQuiz.length === 0) shuffledQuiz = shuffleArray(quizQuestions);
+  const q = shuffledQuiz[currentQuiz];
+  quizLocked = false;
+
+  document.getElementById('qNumber').textContent = `Question ${currentQuiz + 1} of ${shuffledQuiz.length}`;
+  document.getElementById('qScore').textContent = `Score: ${quizScore} / ${quizAnswered}`;
+  document.getElementById('qMeta').innerHTML =
+    `<span class="badge ${q.categoryClass}">${q.category}</span><span class="species-tag">${q.species}</span>`;
+  document.getElementById('qText').textContent = q.question;
+
+  const optContainer = document.getElementById('qOptions');
+  optContainer.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option';
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(i);
+    optContainer.appendChild(btn);
+  });
+
+  document.getElementById('qExplanation').className = 'quiz-explanation';
+  document.getElementById('qExplanation').classList.remove('show');
+  document.getElementById('btnNextQ').classList.remove('show');
+}
+
+function selectAnswer(idx) {
+  if (quizLocked) return;
+  quizLocked = true;
+  quizAnswered++;
+
+  const q = shuffledQuiz[currentQuiz];
+  const options = document.querySelectorAll('.quiz-option');
+  const expEl = document.getElementById('qExplanation');
+  const expLabel = document.getElementById('qExpLabel');
+  const expText = document.getElementById('qExpText');
+
+  options.forEach((btn, i) => {
+    btn.classList.add('disabled');
+    if (i === q.correct) btn.classList.add('correct');
+  });
+
+  if (idx === q.correct) {
+    quizScore++;
+    expEl.className = 'quiz-explanation correct-exp show';
+    expLabel.textContent = 'Correct!';
+  } else {
+    options[idx].classList.add('incorrect');
+    expEl.className = 'quiz-explanation incorrect-exp show';
+    expLabel.textContent = 'Incorrect';
+  }
+  expText.textContent = q.explanation;
+
+  document.getElementById('qScore').textContent = `Score: ${quizScore} / ${quizAnswered}`;
+  document.getElementById('btnNextQ').classList.add('show');
+
+  // Track quiz category performance
+  const progress = loadProgress();
+  if (!progress.quizHistory[q.category]) progress.quizHistory[q.category] = { correct: 0, total: 0 };
+  progress.quizHistory[q.category].total++;
+  if (idx === q.correct) progress.quizHistory[q.category].correct++;
+  saveProgress(progress);
+}
+
+function nextQuestion() {
+  currentQuiz++;
+  if (currentQuiz >= shuffledQuiz.length) {
+    showQuizComplete();
+  } else {
+    loadQuizQuestion();
+  }
+}
+
+function showQuizComplete() {
+  document.getElementById('quizActive').style.display = 'none';
+  document.getElementById('quizComplete').style.display = 'block';
+
+  const pct = Math.round((quizScore / shuffledQuiz.length) * 100);
+  document.getElementById('finalScore').textContent = pct + '%';
+
+  if (pct === 100) {
+    document.getElementById('finalMessage').textContent = 'Perfect Score!';
+    document.getElementById('finalDetail').textContent = 'You nailed every question. You\'re well-prepared!';
+  } else if (pct >= 70) {
+    document.getElementById('finalMessage').textContent = 'Great Work!';
+    document.getElementById('finalDetail').textContent = `You got ${quizScore}/${shuffledQuiz.length} correct. Review the ones you missed!`;
+  } else {
+    document.getElementById('finalMessage').textContent = 'Keep Studying!';
+    document.getElementById('finalDetail').textContent = `You got ${quizScore}/${shuffledQuiz.length} correct. Review the flashcards and try again.`;
+  }
+
+  // Save best score
+  const progress = loadProgress();
+  if (pct > progress.bestScore) {
+    progress.bestScore = pct;
+    saveProgress(progress);
+  }
+}
+
+// ===== PROGRESS =====
+function updateStreak(progress) {
+  const today = new Date().toISOString().slice(0, 10);
+  if (progress.lastDate === today) return;
+
+  if (progress.lastDate) {
+    const last = new Date(progress.lastDate);
+    const now = new Date(today);
+    const diff = Math.floor((now - last) / 86400000);
+    if (diff === 1) {
+      progress.streak++;
+    } else if (diff > 1) {
+      progress.streak = 1;
+    }
+  } else {
+    progress.streak = 1;
+  }
+  progress.lastDate = today;
+}
+
+function updateGlobalProgress() {
+  const progress = loadProgress();
+  const pct = (progress.mastered.length / flashcards.length) * 100;
+  document.getElementById('globalProgress').style.width = pct + '%';
+}
+
+function updateProgressScreen() {
+  const progress = loadProgress();
+  const masteredCount = progress.mastered.length;
+  const total = flashcards.length;
+  const pct = Math.round((masteredCount / total) * 100);
+
+  document.getElementById('statMastered').textContent = masteredCount;
+  document.getElementById('statQuizScore').textContent = progress.bestScore + '%';
+  document.getElementById('statStudied').textContent = progress.studied.length;
+  document.getElementById('statStreak').textContent = progress.streak;
+
+  document.getElementById('masteryFill').style.width = pct + '%';
+  document.getElementById('masteryCount').textContent = `${masteredCount} / ${total} cards`;
+  document.getElementById('masteryPct').textContent = pct + '%';
+
+  // Category breakdown
+  const cats = {};
+  flashcards.forEach(c => {
+    if (!cats[c.category]) cats[c.category] = { total: 0, mastered: 0, cssClass: c.categoryClass };
+    cats[c.category].total++;
+    if (progress.mastered.includes(c.id)) cats[c.category].mastered++;
+  });
+
+  // Add quiz performance
+  const container = document.getElementById('catBreakdown');
+  container.innerHTML = '';
+  for (const [name, data] of Object.entries(cats)) {
+    const quizData = progress.quizHistory[name];
+    let quizInfo = '';
+    if (quizData && quizData.total > 0) {
+      quizInfo = ` | Quiz: ${quizData.correct}/${quizData.total}`;
+    }
+    container.innerHTML += `
+      <div class="cat-row">
+        <span class="cat-name"><span class="badge ${data.cssClass}">${name}</span></span>
+        <span class="cat-score">${data.mastered}/${data.total} mastered${quizInfo}</span>
+      </div>`;
+  }
+}
+
+function resetProgress() {
+  if (confirm('Reset all progress? This cannot be undone.')) {
+    localStorage.removeItem('bcse_progress');
+    updateProgressScreen();
+    updateGlobalProgress();
+    loadCard();
+  }
+}
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  loadCard();
+  shuffledQuiz = shuffleArray(quizQuestions);
+  updateGlobalProgress();
+});
+</script>
+</body>
+</html>
