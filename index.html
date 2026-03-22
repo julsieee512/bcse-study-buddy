@@ -3,1225 +3,870 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
 <title>BCSE Study Buddy</title>
 <style>
-/* ===== CSS RESET & VARIABLES ===== */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--teal:#0d9488;--teal-dark:#0f766e;--teal-bg:#f0fdfa;--white:#fff;--g50:#f8fafc;--g100:#f1f5f9;--g200:#e2e8f0;--g300:#cbd5e1;--g400:#94a3b8;--g500:#64748b;--g600:#475569;--g700:#334155;--g800:#1e293b;--green:#16a34a;--green-bg:#f0fdf4;--green-border:#86efac;--red:#dc2626;--red-bg:#fef2f2;--red-border:#fca5a5;--orange:#ea580c;--radius:16px;--brad:12px;--shadow:0 1px 3px rgba(0,0,0,.1);--shadow-md:0 4px 6px rgba(0,0,0,.07);--shadow-lg:0 10px 15px rgba(0,0,0,.1);--font:'Segoe UI',system-ui,-apple-system,sans-serif}
+body.commute-mode{--teal:#00e6d0;--teal-dark:#00ccb8;--teal-bg:#0a0a0a;--white:#111;--g50:#1a1a1a;--g100:#222;--g200:#333;--g300:#444;--g400:#888;--g500:#aaa;--g600:#ccc;--g700:#ddd;--g800:#eee;--green:#4ade80;--green-bg:#052e16;--green-border:#166534;--red:#f87171;--red-bg:#2a0a0a;--red-border:#7f1d1d;--shadow:0 1px 3px rgba(0,0,0,.4);--shadow-lg:0 10px 15px rgba(0,0,0,.5)}
+html{font-size:16px}
+body{font-family:var(--font);background:var(--g50);color:var(--g800);min-height:100dvh;display:flex;flex-direction:column}
+.app-header{background:var(--teal);color:#fff;padding:14px 20px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow-md)}
+.header-row{display:flex;align-items:center;gap:12px}
+.btn-back{background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);color:#fff;font-size:.82rem;padding:6px 14px;border-radius:20px;cursor:pointer;font-weight:600;display:none}
+.btn-back.show{display:inline-block}
+.header-title{flex:1}
+.header-title h1{font-size:1.15rem;font-weight:700}
+.header-title .subtitle{font-size:.68rem;opacity:.8;display:block;color:#ccfbf1}
+.commute-toggle{background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);color:#fff;font-size:.7rem;padding:6px 12px;border-radius:20px;cursor:pointer;font-weight:600}
+body.commute-mode .commute-toggle{background:rgba(0,230,208,.2);border-color:var(--teal);color:var(--teal)}
+.main-content{flex:1;padding:16px;max-width:640px;margin:0 auto;width:100%}
+.screen{display:none}.screen.active{display:block}
 
-:root {
-  --teal: #0d9488;
-  --teal-dark: #0f766e;
-  --teal-light: #99f6e4;
-  --teal-bg: #f0fdfa;
-  --white: #ffffff;
-  --grey-50: #f8fafc;
-  --grey-100: #f1f5f9;
-  --grey-200: #e2e8f0;
-  --grey-300: #cbd5e1;
-  --grey-400: #94a3b8;
-  --grey-500: #64748b;
-  --grey-600: #475569;
-  --grey-700: #334155;
-  --grey-800: #1e293b;
-  --grey-900: #0f172a;
-  --green: #16a34a;
-  --green-bg: #f0fdf4;
-  --green-border: #86efac;
-  --red: #dc2626;
-  --red-bg: #fef2f2;
-  --red-border: #fca5a5;
-  --orange: #ea580c;
-  --blue: #2563eb;
-  --card-radius: 16px;
-  --btn-radius: 12px;
-  --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
-  --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
-  --shadow-lg: 0 10px 15px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.05);
-  --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
-  --transition: 0.2s ease;
-}
+/* DASHBOARD */
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
+.dash-card{background:var(--white);border-radius:var(--radius);padding:20px 16px;box-shadow:var(--shadow);border:1.5px solid var(--g200);cursor:pointer;transition:.2s ease;text-align:center}
+.dash-card:active{transform:scale(.97);box-shadow:var(--shadow-lg)}
+.dash-card .dash-icon{font-size:1.8rem;margin-bottom:8px;display:block}
+.dash-card .dash-title{font-size:.88rem;font-weight:700;color:var(--g800);margin-bottom:4px}
+.dash-card .dash-desc{font-size:.7rem;color:var(--g500);line-height:1.3}
+.dash-card .dash-count{font-size:.65rem;font-weight:700;color:var(--teal);margin-top:6px;text-transform:uppercase;letter-spacing:.5px}
 
-/* ===== COMMUTE MODE (high contrast) ===== */
-body.commute-mode {
-  --teal: #00e6d0;
-  --teal-dark: #00ccb8;
-  --teal-light: #003d36;
-  --teal-bg: #0a0a0a;
-  --white: #111111;
-  --grey-50: #1a1a1a;
-  --grey-100: #222222;
-  --grey-200: #333333;
-  --grey-300: #444444;
-  --grey-400: #888888;
-  --grey-500: #aaaaaa;
-  --grey-600: #cccccc;
-  --grey-700: #dddddd;
-  --grey-800: #eeeeee;
-  --grey-900: #f5f5f5;
-  --green: #4ade80;
-  --green-bg: #052e16;
-  --green-border: #166534;
-  --red: #f87171;
-  --red-bg: #2a0a0a;
-  --red-border: #7f1d1d;
-  --card-radius: 16px;
-  --shadow: 0 1px 3px rgba(0,0,0,0.4);
-  --shadow-md: 0 4px 6px rgba(0,0,0,0.5);
-  --shadow-lg: 0 10px 15px rgba(0,0,0,0.5);
-}
+/* BADGES */
+.badge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.badge-anatomy{background:#dbeafe;color:#1e40af}.badge-physio{background:#ede9fe;color:#5b21b6}
+.badge-pharma{background:#fce7f3;color:#9d174d}.badge-path{background:#fef3c7;color:#92400e}
+.badge-micro{background:#ffedd5;color:#9a3412}.badge-parasit{background:#ffe4e6;color:#9f1239}
+.badge-tox{background:#fee2e2;color:#991b1b}.badge-clinical{background:#d1fae5;color:#065f46}
+.badge-repro{background:#e0e7ff;color:#3730a3}.badge-nutri{background:#d1fae5;color:#047857}
+.badge-pubhealth{background:#cffafe;color:#0e7490}
+body.commute-mode .badge-anatomy{background:#1e3a5f;color:#93c5fd}
+body.commute-mode .badge-pharma{background:#4a1942;color:#f9a8d4}
+body.commute-mode .badge-path{background:#451a03;color:#fcd34d}
+body.commute-mode .badge-clinical{background:#052e16;color:#6ee7b7}
+body.commute-mode .badge-physio{background:#2e1065;color:#c4b5fd}
+body.commute-mode .badge-micro{background:#431407;color:#fdba74}
+.species-tag{font-size:.65rem;color:var(--g500);font-weight:600;margin-left:6px}
 
-/* ===== BASE ===== */
-html { font-size: 16px; }
-body {
-  font-family: var(--font);
-  background: var(--grey-50);
-  color: var(--grey-800);
-  min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  -webkit-tap-highlight-color: transparent;
-  overflow-x: hidden;
-}
+/* FILTER PANEL */
+.filter-panel{background:var(--white);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);border:1.5px solid var(--g200);margin-bottom:14px}
+.filter-panel h3{font-size:.75rem;color:var(--g500);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.filter-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.filter-chip{padding:6px 12px;border-radius:20px;font-size:.72rem;font-weight:600;border:1.5px solid var(--g300);background:var(--g50);color:var(--g600);cursor:pointer}
+.filter-chip.active{background:var(--teal);color:#fff;border-color:var(--teal)}
+.filter-toggle{display:flex;align-items:center;gap:6px;margin-top:8px;padding:8px 0 0;border-top:1px solid var(--g100)}
+.filter-toggle label{font-size:.78rem;font-weight:600;color:var(--g600);cursor:pointer}
+.filter-toggle input[type="checkbox"]{width:18px;height:18px;accent-color:var(--teal)}
+.filter-summary{font-size:.75rem;color:var(--g500);font-weight:600;text-align:center;margin-bottom:10px}
+.filter-btn-row{display:flex;gap:6px;margin-top:6px}
+.filter-btn-sm{font-size:.7rem;padding:4px 10px;border-radius:20px;border:1px solid var(--g300);background:transparent;color:var(--g500);cursor:pointer;font-weight:600}
 
-/* ===== HEADER ===== */
-.app-header {
-  background: var(--teal);
-  color: var(--white);
-  padding: 16px 20px 12px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  box-shadow: var(--shadow-md);
-}
-.app-header .top-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-.app-header h1 {
-  font-size: 1.2rem;
-  font-weight: 700;
-  letter-spacing: -0.3px;
-  color: #ffffff;
-}
-.app-header .subtitle {
-  font-size: 0.7rem;
-  opacity: 0.85;
-  font-weight: 400;
-  display: block;
-  color: #ccfbf1;
-}
-.commute-toggle {
-  background: rgba(255,255,255,0.15);
-  border: 1.5px solid rgba(255,255,255,0.3);
-  color: #ffffff;
-  font-size: 0.72rem;
-  padding: 6px 12px;
-  border-radius: 20px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: var(--transition);
-  white-space: nowrap;
-}
-.commute-toggle:active { background: rgba(255,255,255,0.3); }
-body.commute-mode .commute-toggle {
-  background: rgba(0,230,208,0.2);
-  border-color: var(--teal);
-  color: var(--teal);
-}
+/* SEARCH */
+.search-bar{position:relative;margin-bottom:14px}
+.search-bar input{width:100%;padding:12px 16px 12px 16px;border:2px solid var(--g200);border-radius:var(--brad);font-size:.9rem;background:var(--white);color:var(--g800);font-family:var(--font)}
+.search-bar input:focus{outline:none;border-color:var(--teal)}
 
-/* ===== NAV TABS ===== */
-.nav-tabs {
-  display: flex;
-  gap: 4px;
-  background: rgba(0,0,0,0.15);
-  border-radius: 10px;
-  padding: 3px;
-}
-.nav-tab {
-  flex: 1;
-  padding: 10px 6px;
-  border: none;
-  background: transparent;
-  color: rgba(255,255,255,0.7);
-  font-size: 0.78rem;
-  font-weight: 600;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: var(--transition);
-  text-align: center;
-}
-.nav-tab.active {
-  background: rgba(255,255,255,0.95);
-  color: var(--teal-dark);
-  box-shadow: var(--shadow);
-}
-.nav-tab:not(.active):active {
-  background: rgba(255,255,255,0.15);
-}
-body.commute-mode .nav-tab.active {
-  background: var(--teal);
-  color: #000;
-}
+/* FLASHCARDS */
+.card-counter{text-align:center;font-size:.8rem;color:var(--g500);margin-bottom:12px;font-weight:600}
+.flashcard-container{perspective:1000px;margin-bottom:20px;min-height:320px}
+.flashcard{position:relative;width:100%;min-height:320px;cursor:pointer;transform-style:preserve-3d;transition:transform .5s ease}
+.flashcard.flipped{transform:rotateY(180deg)}
+.flashcard-face{position:absolute;top:0;left:0;width:100%;min-height:320px;backface-visibility:hidden;border-radius:var(--radius);padding:28px 24px;display:flex;flex-direction:column;box-shadow:var(--shadow-lg)}
+.flashcard-front{background:var(--white);border:2px solid var(--g200)}
+.flashcard-back{background:linear-gradient(135deg,var(--teal),var(--teal-dark));color:#fff;transform:rotateY(180deg)}
+.flashcard-face .card-label{font-size:.7rem;text-transform:uppercase;letter-spacing:1px;opacity:.6;margin-bottom:6px;font-weight:700}
+.flashcard-front .card-label{color:var(--teal);opacity:1}
+.flashcard-face .card-meta{margin-bottom:16px}
+.flashcard-face .card-body{flex:1;display:flex;align-items:center;justify-content:center;text-align:center}
+.flashcard-face .card-body p{font-size:1.02rem;line-height:1.6;font-weight:500}
+.flashcard-back .card-body p{font-size:.92rem}
+.flashcard-face .tap-hint{text-align:center;font-size:.72rem;opacity:.5;margin-top:12px}
+.study-nav{display:flex;gap:12px}
+.study-nav button{flex:1;padding:16px;border:none;border-radius:var(--brad);font-size:.95rem;font-weight:700;cursor:pointer}
+.btn-prev{background:var(--g200);color:var(--g700)}.btn-next{background:var(--teal);color:#fff}
+.btn-mark-known{display:block;width:100%;padding:14px;margin-top:10px;border:2px solid var(--green);background:var(--green-bg);color:var(--green);border-radius:var(--brad);font-size:.88rem;font-weight:700;cursor:pointer}
+.btn-mark-known.marked{background:var(--green);color:#fff;border-color:var(--green)}
 
-/* ===== MAIN CONTENT ===== */
-.main-content {
-  flex: 1;
-  padding: 16px;
-  max-width: 600px;
-  margin: 0 auto;
-  width: 100%;
-}
+/* QUIZ */
+.quiz-setup{background:var(--white);border-radius:var(--radius);padding:24px 20px;box-shadow:var(--shadow-lg);border:2px solid var(--g200)}
+.quiz-setup h2{font-size:1.1rem;color:var(--g800);margin-bottom:16px;font-weight:700}
+.quiz-setup h3{font-size:.82rem;color:var(--g600);margin:14px 0 8px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.quiz-count-options{display:flex;gap:8px;margin-bottom:10px}
+.quiz-count-btn{flex:1;padding:12px 8px;border:2px solid var(--g200);border-radius:var(--brad);background:var(--g50);color:var(--g600);font-size:.88rem;font-weight:700;cursor:pointer;text-align:center}
+.quiz-count-btn.active{border-color:var(--teal);background:var(--teal-bg);color:var(--teal)}
+.btn-start{width:100%;padding:16px;border:none;border-radius:var(--brad);background:var(--teal);color:#fff;font-size:1rem;font-weight:700;cursor:pointer;margin-top:16px}
+.btn-start:active{background:var(--teal-dark)}
+.quiz-header{text-align:center;margin-bottom:16px}
+.quiz-header .q-number{font-size:.78rem;color:var(--g500);font-weight:600}
+.quiz-header .q-score{font-size:.85rem;font-weight:700;color:var(--teal)}
+.quiz-card{background:var(--white);border-radius:var(--radius);padding:24px 20px;box-shadow:var(--shadow-lg);border:2px solid var(--g200);margin-bottom:16px}
+.quiz-card .q-text{font-size:1rem;line-height:1.6;font-weight:600;color:var(--g800);margin-bottom:20px}
+.quiz-options{display:flex;flex-direction:column;gap:10px}
+.quiz-option{width:100%;padding:16px 18px;border:2px solid var(--g200);border-radius:var(--brad);background:var(--g50);color:var(--g800);font-size:.92rem;font-weight:500;cursor:pointer;text-align:left;line-height:1.4}
+.quiz-option.correct{border-color:var(--green)!important;background:var(--green-bg)!important;color:var(--green)!important;font-weight:700}
+.quiz-option.incorrect{border-color:var(--red)!important;background:var(--red-bg)!important;color:var(--red)!important}
+.quiz-option.disabled{cursor:default;opacity:.6}.quiz-option.correct.disabled{opacity:1}
+.quiz-explanation{margin-top:16px;padding:16px;border-radius:12px;font-size:.88rem;line-height:1.6;display:none}
+.quiz-explanation.show{display:block}
+.quiz-explanation.correct-exp{background:var(--green-bg);border:1.5px solid var(--green-border)}
+.quiz-explanation.incorrect-exp{background:var(--red-bg);border:1.5px solid var(--red-border)}
+.quiz-explanation strong{display:block;margin-bottom:4px;font-size:.82rem;text-transform:uppercase;letter-spacing:.5px}
+.quiz-explanation.correct-exp strong{color:var(--green)}
+.quiz-explanation.incorrect-exp strong{color:var(--red)}
+.btn-next-q{display:none;width:100%;padding:16px;margin-top:12px;border:none;border-radius:var(--brad);background:var(--teal);color:#fff;font-size:.95rem;font-weight:700;cursor:pointer}
+.btn-next-q.show{display:block}
+.quiz-complete{text-align:center;padding:40px 20px}
+.quiz-complete .score-circle{width:120px;height:120px;border-radius:50%;border:6px solid var(--teal);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:2rem;font-weight:800;color:var(--teal)}
+.quiz-complete h2{font-size:1.3rem;margin-bottom:8px}
+.quiz-complete p{color:var(--g500);font-size:.9rem;margin-bottom:24px}
 
-/* ===== SCREEN VISIBILITY ===== */
-.screen { display: none; }
-.screen.active { display: block; }
+/* CLINICAL CASES */
+.case-list{display:flex;flex-direction:column;gap:12px}
+.case-card{background:var(--white);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);border:1.5px solid var(--g200);cursor:pointer}
+.case-card:active{border-color:var(--teal)}
+.case-card .case-title{font-size:.95rem;font-weight:700;color:var(--g800);margin-bottom:4px}
+.case-card .case-desc{font-size:.78rem;color:var(--g500);line-height:1.4}
+.case-info{background:var(--white);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow-lg);border:2px solid var(--g200);margin-bottom:16px}
+.case-info h3{font-size:.85rem;font-weight:700;color:var(--teal);text-transform:uppercase;margin-bottom:8px}
+.case-info p{font-size:.9rem;line-height:1.6;color:var(--g700);margin-bottom:8px}
+.case-step{background:var(--white);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow-lg);border:2px solid var(--g200);margin-bottom:16px}
+.case-step .step-label{font-size:.72rem;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.case-step .step-q{font-size:.98rem;font-weight:600;line-height:1.5;margin-bottom:16px}
+.case-summary{background:var(--teal-bg);border:2px solid var(--teal);border-radius:var(--radius);padding:20px;text-align:center}
+.case-summary h3{color:var(--teal);margin-bottom:8px}
+.case-summary p{font-size:.88rem;color:var(--g700);line-height:1.5}
 
-/* ===== PROGRESS BAR (global) ===== */
-.progress-strip {
-  background: var(--grey-200);
-  height: 6px;
-  border-radius: 3px;
-  margin: 0 20px 0;
-  overflow: hidden;
-}
-.progress-strip .fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--teal), var(--green));
-  border-radius: 3px;
-  transition: width 0.5s ease;
-  width: 0%;
-}
+/* MATCHING */
+.match-list{display:flex;flex-direction:column;gap:12px}
+.match-card{background:var(--white);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);border:1.5px solid var(--g200);cursor:pointer}
+.match-card:active{border-color:var(--teal)}
+.match-card .match-title{font-size:.95rem;font-weight:700;color:var(--g800)}
+.match-card .match-desc{font-size:.75rem;color:var(--g500)}
+.match-area{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.match-col h4{font-size:.75rem;font-weight:700;color:var(--g500);text-transform:uppercase;margin-bottom:8px;text-align:center}
+.match-item{padding:12px;border:2px solid var(--g200);border-radius:var(--brad);font-size:.82rem;font-weight:600;text-align:center;cursor:pointer;margin-bottom:8px;transition:.2s;line-height:1.3;min-height:44px;display:flex;align-items:center;justify-content:center}
+.match-item.selected{border-color:var(--teal);background:var(--teal-bg);color:var(--teal)}
+.match-item.matched{border-color:var(--green);background:var(--green-bg);color:var(--green);cursor:default;opacity:.7}
+.match-item.wrong{border-color:var(--red);background:var(--red-bg);animation:shake .3s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.match-score{text-align:center;font-size:.88rem;font-weight:700;color:var(--teal);margin-bottom:12px}
 
-/* ===== CATEGORY BADGE ===== */
-.badge {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 0.68rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-.badge-anatomy { background: #dbeafe; color: #1e40af; }
-.badge-pharma { background: #fce7f3; color: #9d174d; }
-.badge-path { background: #fef3c7; color: #92400e; }
-.badge-clinical { background: #d1fae5; color: #065f46; }
-.badge-physio { background: #ede9fe; color: #5b21b6; }
-.badge-micro { background: #ffedd5; color: #9a3412; }
-body.commute-mode .badge-anatomy { background: #1e3a5f; color: #93c5fd; }
-body.commute-mode .badge-pharma { background: #4a1942; color: #f9a8d4; }
-body.commute-mode .badge-path { background: #451a03; color: #fcd34d; }
-body.commute-mode .badge-clinical { background: #052e16; color: #6ee7b7; }
-body.commute-mode .badge-physio { background: #2e1065; color: #c4b5fd; }
-body.commute-mode .badge-micro { background: #431407; color: #fdba74; }
+/* TRUE/FALSE */
+.tf-statement{background:var(--white);border-radius:var(--radius);padding:24px 20px;box-shadow:var(--shadow-lg);border:2px solid var(--g200);margin-bottom:16px}
+.tf-statement .tf-cat{margin-bottom:12px}
+.tf-statement .tf-text{font-size:1.02rem;line-height:1.6;font-weight:600;text-align:center}
+.tf-buttons{display:flex;gap:12px;margin-bottom:16px}
+.tf-btn{flex:1;padding:18px;border:2px solid var(--g200);border-radius:var(--brad);font-size:1rem;font-weight:700;cursor:pointer;text-align:center;background:var(--g50)}
+.tf-btn.true-btn:active{border-color:var(--green);background:var(--green-bg)}
+.tf-btn.false-btn:active{border-color:var(--red);background:var(--red-bg)}
+.tf-btn.correct-pick{border-color:var(--green)!important;background:var(--green-bg)!important;color:var(--green)!important}
+.tf-btn.incorrect-pick{border-color:var(--red)!important;background:var(--red-bg)!important;color:var(--red)!important}
+.tf-btn.disabled{cursor:default;opacity:.5}
+.tf-btn.correct-pick.disabled,.tf-btn.incorrect-pick.disabled{opacity:1}
 
-.species-tag {
-  font-size: 0.65rem;
-  color: var(--grey-500);
-  font-weight: 600;
-  margin-left: 6px;
-}
+/* STUDY NOTES */
+.notes-list{display:flex;flex-direction:column;gap:12px}
+.note-card{background:var(--white);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);border:1.5px solid var(--g200);cursor:pointer}
+.note-card:active{border-color:var(--teal)}
+.note-card .note-title{font-size:.95rem;font-weight:700;color:var(--g800);margin-bottom:4px}
+.note-card .note-desc{font-size:.75rem;color:var(--g500);line-height:1.3}
+.note-content{background:var(--white);border-radius:var(--radius);padding:24px 20px;box-shadow:var(--shadow-lg);border:2px solid var(--g200)}
+.note-content h2{font-size:1.1rem;font-weight:700;color:var(--g800);margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid var(--g100)}
+.note-content h4{font-size:.92rem;font-weight:700;color:var(--teal);margin:18px 0 8px}
+.note-content p{font-size:.88rem;line-height:1.7;color:var(--g700);margin-bottom:12px}
+.note-content ul{margin:8px 0 16px 20px;font-size:.86rem;line-height:1.7;color:var(--g700)}
+.note-content li{margin-bottom:4px}
+.note-content strong{color:var(--g800)}
+.note-content .key-point{background:var(--teal-bg);border-left:4px solid var(--teal);padding:12px 16px;border-radius:0 8px 8px 0;margin:12px 0;font-size:.85rem;line-height:1.6}
 
-/* ============================================
-   STUDY MODE - FLASHCARDS
-   ============================================ */
-.card-counter {
-  text-align: center;
-  font-size: 0.8rem;
-  color: var(--grey-500);
-  margin-bottom: 12px;
-  font-weight: 600;
-}
-.flashcard-container {
-  perspective: 1000px;
-  margin-bottom: 20px;
-  min-height: 320px;
-}
-.flashcard {
-  position: relative;
-  width: 100%;
-  min-height: 320px;
-  cursor: pointer;
-  transform-style: preserve-3d;
-  transition: transform 0.5s ease;
-}
-.flashcard.flipped { transform: rotateY(180deg); }
-
-.flashcard-face {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%;
-  min-height: 320px;
-  backface-visibility: hidden;
-  border-radius: var(--card-radius);
-  padding: 28px 24px;
-  display: flex;
-  flex-direction: column;
-  box-shadow: var(--shadow-lg);
-}
-.flashcard-front {
-  background: var(--white);
-  border: 2px solid var(--grey-200);
-}
-.flashcard-back {
-  background: linear-gradient(135deg, var(--teal), var(--teal-dark));
-  color: #ffffff;
-  transform: rotateY(180deg);
-}
-.flashcard-face .card-label {
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  opacity: 0.6;
-  margin-bottom: 6px;
-  font-weight: 700;
-}
-.flashcard-front .card-label { color: var(--teal); opacity: 1; }
-.flashcard-face .card-meta {
-  margin-bottom: 16px;
-}
-.flashcard-face .card-body {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-}
-.flashcard-face .card-body p {
-  font-size: 1.05rem;
-  line-height: 1.6;
-  font-weight: 500;
-}
-.flashcard-back .card-body p {
-  font-size: 0.98rem;
-}
-.flashcard-face .tap-hint {
-  text-align: center;
-  font-size: 0.72rem;
-  opacity: 0.5;
-  margin-top: 12px;
-  font-weight: 500;
-}
-.study-nav {
-  display: flex;
-  gap: 12px;
-}
-.study-nav button {
-  flex: 1;
-  padding: 16px;
-  border: none;
-  border-radius: var(--btn-radius);
-  font-size: 0.95rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: var(--transition);
-}
-.btn-prev {
-  background: var(--grey-200);
-  color: var(--grey-700);
-}
-.btn-next {
-  background: var(--teal);
-  color: #ffffff;
-}
-.btn-prev:active { background: var(--grey-300); }
-.btn-next:active { background: var(--teal-dark); }
-.btn-mark-known {
-  display: block;
-  width: 100%;
-  padding: 14px;
-  margin-top: 10px;
-  border: 2px solid var(--green);
-  background: var(--green-bg);
-  color: var(--green);
-  border-radius: var(--btn-radius);
-  font-size: 0.88rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: var(--transition);
-}
-.btn-mark-known:active { background: var(--green); color: #fff; }
-.btn-mark-known.marked {
-  background: var(--green);
-  color: #fff;
-  border-color: var(--green);
-}
-
-/* ============================================
-   QUIZ MODE
-   ============================================ */
-.quiz-header {
-  text-align: center;
-  margin-bottom: 16px;
-}
-.quiz-header .q-number {
-  font-size: 0.78rem;
-  color: var(--grey-500);
-  font-weight: 600;
-}
-.quiz-header .q-score {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--teal);
-}
-.quiz-card {
-  background: var(--white);
-  border-radius: var(--card-radius);
-  padding: 24px 20px;
-  box-shadow: var(--shadow-lg);
-  border: 2px solid var(--grey-200);
-  margin-bottom: 16px;
-}
-.quiz-card .q-meta { margin-bottom: 14px; }
-.quiz-card .q-text {
-  font-size: 1.02rem;
-  line-height: 1.6;
-  font-weight: 600;
-  color: var(--grey-800);
-  margin-bottom: 20px;
-}
-.quiz-options {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.quiz-option {
-  width: 100%;
-  padding: 16px 18px;
-  border: 2px solid var(--grey-200);
-  border-radius: var(--btn-radius);
-  background: var(--grey-50);
-  color: var(--grey-800);
-  font-size: 0.92rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: var(--transition);
-  text-align: left;
-  line-height: 1.4;
-}
-.quiz-option:active:not(.disabled) {
-  border-color: var(--teal);
-  background: var(--teal-bg);
-}
-.quiz-option.correct {
-  border-color: var(--green) !important;
-  background: var(--green-bg) !important;
-  color: var(--green) !important;
-  font-weight: 700;
-}
-.quiz-option.incorrect {
-  border-color: var(--red) !important;
-  background: var(--red-bg) !important;
-  color: var(--red) !important;
-}
-.quiz-option.disabled {
-  cursor: default;
-  opacity: 0.6;
-}
-.quiz-option.correct.disabled { opacity: 1; }
-.quiz-explanation {
-  margin-top: 16px;
-  padding: 16px;
-  border-radius: 12px;
-  font-size: 0.88rem;
-  line-height: 1.6;
-  display: none;
-}
-.quiz-explanation.show { display: block; }
-.quiz-explanation.correct-exp {
-  background: var(--green-bg);
-  border: 1.5px solid var(--green-border);
-  color: var(--grey-800);
-}
-.quiz-explanation.incorrect-exp {
-  background: var(--red-bg);
-  border: 1.5px solid var(--red-border);
-  color: var(--grey-800);
-}
-.quiz-explanation strong {
-  display: block;
-  margin-bottom: 4px;
-  font-size: 0.82rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-.quiz-explanation.correct-exp strong { color: var(--green); }
-.quiz-explanation.incorrect-exp strong { color: var(--red); }
-
-.btn-next-q {
-  display: none;
-  width: 100%;
-  padding: 16px;
-  margin-top: 12px;
-  border: none;
-  border-radius: var(--btn-radius);
-  background: var(--teal);
-  color: #ffffff;
-  font-size: 0.95rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: var(--transition);
-}
-.btn-next-q.show { display: block; }
-.btn-next-q:active { background: var(--teal-dark); }
-
-/* Quiz complete */
-.quiz-complete {
-  text-align: center;
-  padding: 40px 20px;
-}
-.quiz-complete .score-circle {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  border: 6px solid var(--teal);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 20px;
-  font-size: 2rem;
-  font-weight: 800;
-  color: var(--teal);
-}
-.quiz-complete h2 {
-  font-size: 1.3rem;
-  color: var(--grey-800);
-  margin-bottom: 8px;
-}
-.quiz-complete p {
-  color: var(--grey-500);
-  font-size: 0.9rem;
-  margin-bottom: 24px;
-}
-.btn-restart {
-  padding: 16px 40px;
-  border: none;
-  border-radius: var(--btn-radius);
-  background: var(--teal);
-  color: #ffffff;
-  font-size: 0.95rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-/* ============================================
-   PROGRESS SCREEN
-   ============================================ */
-.progress-screen h2 {
-  font-size: 1.15rem;
-  color: var(--grey-800);
-  margin-bottom: 16px;
-  font-weight: 700;
-}
-.stat-cards {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 24px;
-}
-.stat-card {
-  background: var(--white);
-  border-radius: var(--card-radius);
-  padding: 20px 16px;
-  text-align: center;
-  box-shadow: var(--shadow);
-  border: 1.5px solid var(--grey-200);
-}
-.stat-card .stat-value {
-  font-size: 1.8rem;
-  font-weight: 800;
-  color: var(--teal);
-  line-height: 1;
-  margin-bottom: 4px;
-}
-.stat-card .stat-label {
-  font-size: 0.72rem;
-  color: var(--grey-500);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-.progress-bar-section {
-  background: var(--white);
-  border-radius: var(--card-radius);
-  padding: 20px;
-  box-shadow: var(--shadow);
-  border: 1.5px solid var(--grey-200);
-  margin-bottom: 20px;
-}
-.progress-bar-section h3 {
-  font-size: 0.88rem;
-  color: var(--grey-700);
-  margin-bottom: 12px;
-  font-weight: 700;
-}
-.progress-bar-track {
-  background: var(--grey-200);
-  height: 14px;
-  border-radius: 7px;
-  overflow: hidden;
-  margin-bottom: 8px;
-}
-.progress-bar-track .fill {
-  height: 100%;
-  border-radius: 7px;
-  background: linear-gradient(90deg, var(--teal), var(--green));
-  transition: width 0.6s ease;
-}
-.progress-bar-label {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.75rem;
-  color: var(--grey-500);
-  font-weight: 600;
-}
-.category-breakdown {
-  background: var(--white);
-  border-radius: var(--card-radius);
-  padding: 20px;
-  box-shadow: var(--shadow);
-  border: 1.5px solid var(--grey-200);
-  margin-bottom: 20px;
-}
-.category-breakdown h3 {
-  font-size: 0.88rem;
-  color: var(--grey-700);
-  margin-bottom: 14px;
-  font-weight: 700;
-}
-.cat-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--grey-100);
-}
-.cat-row:last-child { border-bottom: none; }
-.cat-row .cat-name {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--grey-700);
-}
-.cat-row .cat-score {
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--teal);
-}
-.btn-reset {
-  width: 100%;
-  padding: 14px;
-  border: 2px solid var(--red);
-  background: transparent;
-  color: var(--red);
-  border-radius: var(--btn-radius);
-  font-size: 0.88rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: var(--transition);
-}
-.btn-reset:active { background: var(--red); color: #fff; }
-
-/* ===== UTILITY ===== */
-.sr-only {
-  position: absolute; width: 1px; height: 1px;
-  padding: 0; margin: -1px; overflow: hidden;
-  clip: rect(0,0,0,0); border: 0;
-}
-@media (min-width: 480px) {
-  .main-content { padding: 20px; }
-}
+/* PROGRESS */
+.stat-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
+.stat-card{background:var(--white);border-radius:var(--radius);padding:20px 16px;text-align:center;box-shadow:var(--shadow);border:1.5px solid var(--g200)}
+.stat-card .stat-value{font-size:1.8rem;font-weight:800;color:var(--teal);line-height:1;margin-bottom:4px}
+.stat-card .stat-label{font-size:.72rem;color:var(--g500);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.progress-bar-section{background:var(--white);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);border:1.5px solid var(--g200);margin-bottom:20px}
+.progress-bar-section h3{font-size:.88rem;color:var(--g700);margin-bottom:12px;font-weight:700}
+.progress-bar-track{background:var(--g200);height:14px;border-radius:7px;overflow:hidden;margin-bottom:8px}
+.progress-bar-track .fill{height:100%;border-radius:7px;background:linear-gradient(90deg,var(--teal),var(--green));transition:width .6s ease}
+.progress-bar-label{display:flex;justify-content:space-between;font-size:.75rem;color:var(--g500);font-weight:600}
+.category-breakdown{background:var(--white);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);border:1.5px solid var(--g200);margin-bottom:20px}
+.category-breakdown h3{font-size:.88rem;color:var(--g700);margin-bottom:14px;font-weight:700}
+.cat-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--g100)}
+.cat-row:last-child{border-bottom:none}
+.cat-row .cat-name{font-size:.82rem;font-weight:600}
+.cat-row .cat-bar{flex:1;margin:0 12px;height:6px;background:var(--g200);border-radius:3px;overflow:hidden;min-width:40px}
+.cat-row .cat-bar .fill{height:100%;border-radius:3px;background:var(--teal)}
+.cat-row .cat-score{font-size:.75rem;font-weight:700;color:var(--teal);text-align:right;min-width:90px}
+.btn-reset{width:100%;padding:14px;border:2px solid var(--red);background:transparent;color:var(--red);border-radius:var(--brad);font-size:.88rem;font-weight:700;cursor:pointer}
+.btn-restart{padding:16px 40px;border:none;border-radius:var(--brad);background:var(--teal);color:#fff;font-size:.95rem;font-weight:700;cursor:pointer}
+.btn-back-link{display:inline-block;margin-bottom:14px;font-size:.82rem;font-weight:600;color:var(--teal);cursor:pointer;padding:6px 0}
+@media(min-width:480px){.main-content{padding:20px}}
 </style>
 </head>
 <body>
 
-<!-- ===== HEADER ===== -->
 <header class="app-header">
-  <div class="top-row">
-    <h1>BCSE Study Buddy<span class="subtitle">Canadian Veterinary Exam Prep</span></h1>
-    <button class="commute-toggle" onclick="toggleCommuteMode()" aria-label="Toggle commute mode">Commute Mode</button>
+  <div class="header-row">
+    <button class="btn-back" id="btnBack" onclick="goHome()">Home</button>
+    <div class="header-title">
+      <h1 id="headerTitle">BCSE Study Buddy</h1>
+      <span class="subtitle" id="headerSub">Canadian Veterinary Exam Prep</span>
+    </div>
+    <button class="commute-toggle" onclick="toggleCommuteMode()">Commute Mode</button>
   </div>
-  <nav class="nav-tabs" role="tablist">
-    <button class="nav-tab active" onclick="switchScreen('study')" role="tab" aria-selected="true">Study</button>
-    <button class="nav-tab" onclick="switchScreen('quiz')" role="tab" aria-selected="false">Quiz</button>
-    <button class="nav-tab" onclick="switchScreen('progress')" role="tab" aria-selected="false">Progress</button>
-  </nav>
 </header>
-<div class="progress-strip"><div class="fill" id="globalProgress"></div></div>
 
-<!-- ===== MAIN ===== -->
 <main class="main-content">
 
-  <!-- STUDY SCREEN -->
-  <section class="screen active" id="studyScreen">
-    <div class="card-counter" id="cardCounter">1 / 10</div>
-    <div class="flashcard-container" onclick="flipCard()">
-      <div class="flashcard" id="flashcard">
-        <div class="flashcard-face flashcard-front" id="cardFront">
-          <div class="card-label">Question</div>
-          <div class="card-meta" id="cardFrontMeta"></div>
-          <div class="card-body"><p id="cardQuestion"></p></div>
-          <div class="tap-hint">Tap to reveal answer</div>
-        </div>
-        <div class="flashcard-face flashcard-back" id="cardBack">
-          <div class="card-label">Answer</div>
-          <div class="card-body"><p id="cardAnswer"></p></div>
-          <div class="tap-hint">Tap to see question</div>
-        </div>
-      </div>
-    </div>
-    <div class="study-nav">
-      <button class="btn-prev" onclick="prevCard()">&larr; Prev</button>
-      <button class="btn-next" onclick="nextCard()">Next &rarr;</button>
-    </div>
-    <button class="btn-mark-known" id="btnMark" onclick="toggleMastered()">Mark as Mastered</button>
-  </section>
+<!-- DASHBOARD -->
+<section class="screen active" id="dashScreen">
+  <div class="dash-grid" id="dashGrid"></div>
+</section>
 
-  <!-- QUIZ SCREEN -->
-  <section class="screen" id="quizScreen">
-    <div id="quizActive">
-      <div class="quiz-header">
-        <span class="q-number" id="qNumber">Question 1 of 10</span>
-        <br>
-        <span class="q-score" id="qScore">Score: 0 / 0</span>
-      </div>
-      <div class="quiz-card">
-        <div class="q-meta" id="qMeta"></div>
-        <p class="q-text" id="qText"></p>
-        <div class="quiz-options" id="qOptions"></div>
-        <div class="quiz-explanation" id="qExplanation">
-          <strong id="qExpLabel"></strong>
-          <span id="qExpText"></span>
-        </div>
-      </div>
-      <button class="btn-next-q" id="btnNextQ" onclick="nextQuestion()">Next Question &rarr;</button>
+<!-- FLASHCARDS -->
+<section class="screen" id="studyScreen">
+  <div class="search-bar"><input type="text" id="searchInput" placeholder="Search flashcards..." oninput="applyStudyFilters()"></div>
+  <div class="filter-panel" id="studyFilterPanel">
+    <h3>Categories</h3><div class="filter-chips" id="studyCatChips"></div>
+    <h3>Species</h3><div class="filter-chips" id="studySpeciesChips"></div>
+    <div class="filter-toggle"><input type="checkbox" id="focusMode" onchange="applyStudyFilters()"><label for="focusMode">Focus mode — un-mastered only</label></div>
+    <div class="filter-btn-row"><button class="filter-btn-sm" onclick="selectAllFilters('study')">All</button><button class="filter-btn-sm" onclick="clearAllFilters('study')">None</button></div>
+  </div>
+  <div class="filter-summary" id="studyFilterSummary"></div>
+  <div class="card-counter" id="cardCounter">1 / 10</div>
+  <div class="flashcard-container" onclick="flipCard()">
+    <div class="flashcard" id="flashcard">
+      <div class="flashcard-face flashcard-front"><div class="card-label">Question</div><div class="card-meta" id="cardFrontMeta"></div><div class="card-body"><p id="cardQuestion"></p></div><div class="tap-hint">Tap to reveal answer</div></div>
+      <div class="flashcard-face flashcard-back"><div class="card-label">Answer</div><div class="card-body"><p id="cardAnswer"></p></div><div class="tap-hint">Tap to see question</div></div>
     </div>
-    <div class="quiz-complete" id="quizComplete" style="display:none;">
-      <div class="score-circle" id="finalScore">0%</div>
-      <h2 id="finalMessage">Great job!</h2>
-      <p id="finalDetail">You've completed the quiz.</p>
-      <button class="btn-restart" onclick="restartQuiz()">Try Again</button>
-    </div>
-  </section>
+  </div>
+  <div class="study-nav"><button class="btn-prev" onclick="prevCard()">Prev</button><button class="btn-next" onclick="nextCard()">Next</button></div>
+  <button class="btn-mark-known" id="btnMark" onclick="toggleMastered()">Mark as Mastered</button>
+</section>
 
-  <!-- PROGRESS SCREEN -->
-  <section class="screen" id="progressScreen">
-    <h2>Your Progress</h2>
-    <div class="stat-cards">
-      <div class="stat-card">
-        <div class="stat-value" id="statMastered">0</div>
-        <div class="stat-label">Cards Mastered</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="statQuizScore">0%</div>
-        <div class="stat-label">Best Quiz Score</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="statStudied">0</div>
-        <div class="stat-label">Cards Studied</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="statStreak">0</div>
-        <div class="stat-label">Day Streak</div>
-      </div>
+<!-- QUIZ -->
+<section class="screen" id="quizScreen">
+  <div id="quizSetup">
+    <div class="quiz-setup">
+      <h2>Quiz Setup</h2>
+      <h3>Categories</h3><div class="filter-chips" id="quizCatChips"></div>
+      <div class="filter-btn-row"><button class="filter-btn-sm" onclick="selectAllFilters('quiz')">All</button><button class="filter-btn-sm" onclick="clearAllFilters('quiz')">None</button></div>
+      <h3>Questions</h3>
+      <div class="quiz-count-options"><button class="quiz-count-btn" onclick="setQuizCount(10,this)">10</button><button class="quiz-count-btn active" onclick="setQuizCount(20,this)">20</button><button class="quiz-count-btn" onclick="setQuizCount(50,this)">50</button><button class="quiz-count-btn" onclick="setQuizCount(0,this)">All</button></div>
+      <div class="filter-toggle"><input type="checkbox" id="weakAreaMode"><label for="weakAreaMode">Prioritize weak areas</label></div>
+      <button class="btn-start" onclick="startQuiz()">Start Quiz</button>
     </div>
-    <div class="progress-bar-section">
-      <h3>Mastery Progress</h3>
-      <div class="progress-bar-track"><div class="fill" id="masteryFill"></div></div>
-      <div class="progress-bar-label">
-        <span id="masteryCount">0 / 10 cards</span>
-        <span id="masteryPct">0%</span>
-      </div>
+  </div>
+  <div id="quizActive" style="display:none">
+    <div class="quiz-header"><span class="q-number" id="qNumber"></span><br><span class="q-score" id="qScore"></span></div>
+    <div class="quiz-card"><div class="q-meta" id="qMeta"></div><p class="q-text" id="qText"></p><div class="quiz-options" id="qOptions"></div><div class="quiz-explanation" id="qExplanation"><strong id="qExpLabel"></strong><span id="qExpText"></span></div></div>
+    <button class="btn-next-q" id="btnNextQ" onclick="nextQuestion()">Next Question</button>
+  </div>
+  <div class="quiz-complete" id="quizComplete" style="display:none"><div class="score-circle" id="finalScore">0%</div><h2 id="finalMessage"></h2><p id="finalDetail"></p><button class="btn-restart" onclick="showQuizSetup()">New Quiz</button></div>
+</section>
+
+<!-- CLINICAL CASES -->
+<section class="screen" id="casesScreen">
+  <div id="casesList" class="case-list"></div>
+  <div id="caseActive" style="display:none"></div>
+</section>
+
+<!-- MATCHING -->
+<section class="screen" id="matchScreen">
+  <div id="matchList" class="match-list"></div>
+  <div id="matchActive" style="display:none"></div>
+</section>
+
+<!-- TRUE/FALSE -->
+<section class="screen" id="tfScreen">
+  <div id="tfSetup">
+    <div class="quiz-setup">
+      <h2>True / False</h2>
+      <h3>Categories</h3><div class="filter-chips" id="tfCatChips"></div>
+      <div class="filter-btn-row"><button class="filter-btn-sm" onclick="selectAllFilters('tf')">All</button><button class="filter-btn-sm" onclick="clearAllFilters('tf')">None</button></div>
+      <button class="btn-start" onclick="startTF()">Start</button>
     </div>
-    <div class="category-breakdown">
-      <h3>By Category</h3>
-      <div id="catBreakdown"></div>
-    </div>
-    <button class="btn-reset" onclick="resetProgress()">Reset All Progress</button>
-  </section>
+  </div>
+  <div id="tfActive" style="display:none"></div>
+  <div id="tfComplete" class="quiz-complete" style="display:none"><div class="score-circle" id="tfFinalScore">0%</div><h2 id="tfFinalMsg"></h2><p id="tfFinalDetail"></p><button class="btn-restart" onclick="goScreen('tfScreen');document.getElementById('tfSetup').style.display='block';document.getElementById('tfActive').style.display='none';document.getElementById('tfComplete').style.display='none'">Again</button></div>
+</section>
+
+<!-- STUDY NOTES -->
+<section class="screen" id="notesScreen">
+  <div id="notesList" class="notes-list"></div>
+  <div id="noteActive" style="display:none"></div>
+</section>
+
+<!-- PROGRESS -->
+<section class="screen" id="progressScreen">
+  <h2 style="font-size:1.15rem;margin-bottom:16px;font-weight:700">Your Progress</h2>
+  <div class="stat-cards">
+    <div class="stat-card"><div class="stat-value" id="statMastered">0</div><div class="stat-label">Cards Mastered</div></div>
+    <div class="stat-card"><div class="stat-value" id="statQuizScore">0%</div><div class="stat-label">Best Quiz</div></div>
+    <div class="stat-card"><div class="stat-value" id="statStudied">0</div><div class="stat-label">Cards Seen</div></div>
+    <div class="stat-card"><div class="stat-value" id="statStreak">0</div><div class="stat-label">Day Streak</div></div>
+  </div>
+  <div class="progress-bar-section"><h3>Mastery</h3><div class="progress-bar-track"><div class="fill" id="masteryFill"></div></div><div class="progress-bar-label"><span id="masteryCount">0/0</span><span id="masteryPct">0%</span></div></div>
+  <div class="category-breakdown"><h3>By Category</h3><div id="catBreakdown"></div></div>
+  <button class="btn-reset" onclick="resetProgress()">Reset All Progress</button>
+</section>
 
 </main>
 
 <script>
-/* =============================================================
-   BCSE STUDY BUDDY — DATA & LOGIC
-   =============================================================
-   Content is based on standard veterinary medical education
-   aligned with the BCSE syllabus domains.
-   ============================================================= */
-
-// ===== FLASHCARD DATA =====
+// === DATA FILES LOADED BELOW ===
+</script>
+<script id="dataScript">
 const flashcards = [
-  {
-    id: 1,
-    category: "Anatomy",
-    categoryClass: "badge-anatomy",
-    species: "Equine",
-    question: "Which domestic species lacks a gallbladder?",
-    answer: "The horse. Bile is continuously secreted from the liver directly into the duodenum via the common bile duct. Horses also lack a distinct cecal appendix, and the right ventral colon is the primary site of large-colon impaction."
-  },
-  {
-    id: 2,
-    category: "Anatomy",
-    categoryClass: "badge-anatomy",
-    species: "Bovine",
-    question: "Name the four compartments of the ruminant forestomach and true stomach, in order from esophagus to duodenum.",
-    answer: "Rumen, Reticulum, Omasum, Abomasum. The rumen and reticulum communicate freely (reticulo-rumen). The abomasum is the 'true' glandular stomach, analogous to the monogastric stomach, and is the primary site of acid and enzymatic digestion."
-  },
-  {
-    id: 3,
-    category: "Pharmacology",
-    categoryClass: "badge-pharma",
-    species: "Small Animal",
-    question: "What is the mechanism of action of meloxicam, and what are its primary therapeutic effects?",
-    answer: "Meloxicam is a preferential COX-2 inhibitor (NSAID). It reduces prostaglandin synthesis, providing anti-inflammatory, analgesic, and antipyretic effects. It is commonly used for osteoarthritis pain in dogs and peri-operative pain management."
-  },
-  {
-    id: 4,
-    category: "Pharmacology",
-    categoryClass: "badge-pharma",
-    species: "Bovine / Equine",
-    question: "Why must xylazine (an alpha-2 adrenergic agonist) be dosed much lower in cattle than in horses?",
-    answer: "Cattle are approximately 10 times more sensitive to xylazine than horses. The typical bovine dose is 0.05–0.1 mg/kg IV, compared to 0.5–1.1 mg/kg IV in horses. Overdosing in cattle can cause severe respiratory depression, bloat due to recumbency, and prolonged recovery."
-  },
-  {
-    id: 5,
-    category: "Pathology",
-    categoryClass: "badge-path",
-    species: "Bovine",
-    question: "What is traumatic reticulopericarditis (hardware disease) in cattle, and how is it prevented?",
-    answer: "A condition where ingested metallic foreign bodies (nails, wire) lodge in the reticulum and can penetrate the diaphragm to reach the pericardium, causing pericarditis. Prevention: administer a rumen magnet (cow magnet) orally, which sits in the reticulum and attracts metallic debris before it can cause damage."
-  },
-  {
-    id: 6,
-    category: "Pathology",
-    categoryClass: "badge-path",
-    species: "Small Animal",
-    question: "Describe the classic clinical presentation of canine parvovirus (CPV-2) infection.",
-    answer: "Severe hemorrhagic gastroenteritis: foul-smelling, bloody diarrhea, profuse vomiting, lethargy, fever progressing to hypothermia, and dehydration. Hallmark lab finding is marked leukopenia (low WBC). Primarily affects unvaccinated puppies aged 6 weeks to 6 months. High mortality without aggressive fluid therapy and supportive care."
-  },
-  {
-    id: 7,
-    category: "Clinical",
-    categoryClass: "badge-clinical",
-    species: "Small Animal",
-    question: "What is GDV and why is it a life-threatening surgical emergency?",
-    answer: "Gastric Dilatation-Volvulus: the stomach distends with gas (dilatation) and then rotates on its mesenteric axis (volvulus), occluding the cardia and pylorus. This traps gas, compromises venous return (compresses caudal vena cava), causes hypovolemic and distributive shock, and leads to gastric wall necrosis and splenic torsion. Requires immediate stabilization and surgical correction (derotation + gastropexy)."
-  },
-  {
-    id: 8,
-    category: "Clinical",
-    categoryClass: "badge-clinical",
-    species: "Equine",
-    question: "What are the main categories of equine colic, and which type is the most urgent surgical emergency?",
-    answer: "Main categories: (1) Spasmodic/gas colic — intestinal spasm, often self-limiting; (2) Impaction — feed material obstruction, commonly at the pelvic flexure; (3) Displacement — includes nephrosplenic entrapment and large-colon volvulus; (4) Strangulating — compromised blood supply (e.g., small intestinal volvulus, pedunculated lipoma). Strangulating lesions are the most urgent — they cause rapid intestinal necrosis and require emergency surgery."
-  },
-  {
-    id: 9,
-    category: "Physiology",
-    categoryClass: "badge-physio",
-    species: "Bovine",
-    question: "What is milk fever (parturient paresis), and how is it treated?",
-    answer: "Acute hypocalcemia occurring most commonly in high-producing dairy cows within 72 hours of calving. The sudden demand for calcium for colostrum/milk production exceeds the cow's ability to mobilize calcium from bone and absorb it from the gut. Clinical signs: muscle tremors, ataxia, recumbency, decreased rumen motility, and circulatory collapse. Treatment: slow IV calcium borogluconate with cardiac auscultation (rapid infusion can cause cardiac arrest)."
-  },
-  {
-    id: 10,
-    category: "Microbiology",
-    categoryClass: "badge-micro",
-    species: "Small Animal",
-    question: "What is the primary causative agent of kennel cough (infectious tracheobronchitis) and how is it transmitted?",
-    answer: "The primary bacterial pathogen is Bordetella bronchiseptica, frequently co-infected with canine parainfluenza virus (CPIV) and/or canine adenovirus-2. Transmitted via aerosolized respiratory secretions in close-contact environments (shelters, boarding). Clinical sign: harsh, honking cough, often with a terminal retch. Usually self-limiting in immunocompetent dogs but can progress to bronchopneumonia in puppies or immunocompromised dogs."
-  }
+{id:1,category:"Anatomy",categoryClass:"badge-anatomy",species:"Equine",question:"Which domestic species lacks a gallbladder?",answer:"The horse. Bile is continuously secreted from the liver directly into the duodenum via the common bile duct."},
+{id:2,category:"Anatomy",categoryClass:"badge-anatomy",species:"Bovine",question:"Name the four compartments of the ruminant stomach in order.",answer:"Rumen, Reticulum, Omasum, Abomasum. The abomasum is the 'true' glandular stomach, analogous to the monogastric stomach."},
+{id:3,category:"Anatomy",categoryClass:"badge-anatomy",species:"Canine",question:"What is the largest salivary gland in the dog?",answer:"The mandibular salivary gland, located caudoventral to the mandible, between the linguofacial and maxillary veins."},
+{id:4,category:"Anatomy",categoryClass:"badge-anatomy",species:"Equine",question:"What ligament suspends the navicular bone in the horse?",answer:"The impar (distal sesamoidean) ligament connects navicular bone to the distal phalanx. Navicular syndrome involves degeneration of these structures and the deep digital flexor tendon."},
+{id:5,category:"Anatomy",categoryClass:"badge-anatomy",species:"Feline",question:"How many thoracic and lumbar vertebrae does the cat have?",answer:"13 thoracic and 7 lumbar vertebrae. Cats have 13 pairs of ribs. Their longer lumbar vertebrae contribute to superior spinal flexibility."},
+{id:6,category:"Anatomy",categoryClass:"badge-anatomy",species:"Avian",question:"Describe the unique features of the avian respiratory system.",answer:"Birds have rigid lungs with parabronchi (no alveoli), 9 air sacs acting as bellows, and unidirectional airflow. It takes 2 breathing cycles for air to pass completely through."},
+{id:7,category:"Anatomy",categoryClass:"badge-anatomy",species:"Equine",question:"What is the blood supply to the equine foot and why is it clinically important?",answer:"Medial and lateral digital arteries form the terminal arch within the distal phalanx. Laminitis disrupts this supply — ischemia causes separation of the hoof wall from coffin bone."},
+{id:8,category:"Anatomy",categoryClass:"badge-anatomy",species:"Canine",question:"What nerve is at greatest risk during thyroid surgery?",answer:"The recurrent laryngeal nerve (in the tracheoesophageal groove). Damage causes laryngeal paralysis — loss of vocal fold abduction, inspiratory stridor, exercise intolerance."},
+{id:9,category:"Anatomy",categoryClass:"badge-anatomy",species:"Bovine",question:"Where does the parotid duct open in cattle?",answer:"Opposite the upper 4th premolar on the buccal papilla. In cattle the parotid is the largest salivary gland. Cattle produce 100-200 L of saliva/day for rumen buffering."},
+{id:10,category:"Anatomy",categoryClass:"badge-anatomy",species:"Canine",question:"What are the boundaries of the femoral triangle in the dog?",answer:"Cranially: sartorius (cranial part). Caudally: pectineus. Proximally: inguinal ligament. Contains femoral artery, vein, and nerve — site for femoral pulse palpation."},
+{id:11,category:"Physiology",categoryClass:"badge-physio",species:"Bovine",question:"What is milk fever (parturient paresis) and how is it treated?",answer:"Acute hypocalcemia in high-producing dairy cows within 72h of calving. Calcium demand for milk exceeds mobilization. Treatment: slow IV calcium borogluconate with cardiac monitoring."},
+{id:12,category:"Physiology",categoryClass:"badge-physio",species:"Bovine",question:"What are volatile fatty acids (VFAs) and their roles in ruminants?",answer:"VFAs (acetate, propionate, butyrate) from rumen fermentation provide 60-80% of energy. Acetate: energy + milk fat precursor. Propionate: main gluconeogenic precursor. Butyrate: rumen epithelium energy."},
+{id:13,category:"Physiology",categoryClass:"badge-physio",species:"Multi-species",question:"Describe the renin-angiotensin-aldosterone system (RAAS).",answer:"Low renal perfusion → renin → angiotensinogen to angiotensin I → ACE converts to angiotensin II → vasoconstriction + aldosterone (Na/water retention) → increased BP. ACE inhibitors (enalapril) block this."},
+{id:14,category:"Physiology",categoryClass:"badge-physio",species:"Equine",question:"Why are horses obligate nasal breathers?",answer:"The long soft palate seals against the tongue base, directing airflow through the nose only. Dorsal displacement of the soft palate (DDSP) causes exercise intolerance and respiratory noise."},
+{id:15,category:"Physiology",categoryClass:"badge-physio",species:"Avian",question:"How does calcium metabolism differ in laying hens?",answer:"Laying hens need ~25x more calcium. Medullary bone acts as a labile calcium reservoir. Estrogen stimulates medullary bone formation. A single eggshell requires ~2g calcium, formed primarily overnight."},
+{id:16,category:"Physiology",categoryClass:"badge-physio",species:"Multi-species",question:"What is the difference between metabolic acidosis and alkalosis?",answer:"Acidosis: low pH from excess acid or bicarbonate loss (e.g., grain overload lactic acidosis, diabetic ketoacidosis). Alkalosis: high pH from acid loss or excess bicarb (e.g., LDA with HCl sequestration, pyloric obstruction)."},
+{id:17,category:"Physiology",categoryClass:"badge-physio",species:"Canine",question:"What is the normal heart rate range for dogs and cats?",answer:"Dogs: 60-140 bpm (large breeds lower). Cats: 140-220 bpm. Cardiac output = HR x stroke volume. Stroke volume depends on preload (Frank-Starling), afterload, and contractility."},
+{id:18,category:"Pharmacology",categoryClass:"badge-pharma",species:"Small Animal",question:"What is meloxicam's mechanism of action?",answer:"Preferential COX-2 inhibitor (NSAID). Reduces prostaglandin synthesis → anti-inflammatory, analgesic, antipyretic. Used for osteoarthritis in dogs. Caution in cats with renal disease."},
+{id:19,category:"Pharmacology",categoryClass:"badge-pharma",species:"Bovine",question:"Why must xylazine be dosed lower in cattle than horses?",answer:"Cattle are ~10x more sensitive. Bovine dose: 0.05-0.1 mg/kg IV vs equine: 0.5-1.1 mg/kg IV. Overdose causes respiratory depression, bloat, prolonged recumbency. Reversal: yohimbine."},
+{id:20,category:"Pharmacology",categoryClass:"badge-pharma",species:"Multi-species",question:"Name the main antimicrobial classes with one example each.",answer:"Beta-lactams (amoxicillin) — cell wall. Fluoroquinolones (enrofloxacin) — DNA gyrase. Tetracyclines (oxytetracycline) — 30S ribosome. Aminoglycosides (gentamicin) — 30S. Macrolides (tulathromycin) — 50S. Sulfonamides (TMS) — folate synthesis."},
+{id:21,category:"Pharmacology",categoryClass:"badge-pharma",species:"Feline",question:"Why is acetaminophen toxic to cats?",answer:"Cats lack UDP-glucuronosyltransferase. Toxic metabolite NAPQI accumulates → methemoglobinemia (brown blood, cyanosis) + hepatic necrosis. A single 325mg tablet can be fatal. Antidote: N-acetylcysteine."},
+{id:22,category:"Pharmacology",categoryClass:"badge-pharma",species:"Multi-species",question:"Bactericidal vs bacteriostatic — what's the difference?",answer:"Bactericidal: kill bacteria (beta-lactams, fluoroquinolones, aminoglycosides). Bacteriostatic: inhibit growth (tetracyclines, macrolides, chloramphenicol). Prefer bactericidal in immunocompromised. Avoid combining the two types."},
+{id:23,category:"Pharmacology",categoryClass:"badge-pharma",species:"Equine",question:"What is phenylbutazone and its risks?",answer:"Non-selective COX inhibitor (NSAID) for musculoskeletal pain in horses. Risks: right dorsal colitis, renal papillary necrosis, protein-bound drug interactions. Prohibited in food animals (human aplastic anemia risk)."},
+{id:24,category:"Pharmacology",categoryClass:"badge-pharma",species:"Multi-species",question:"What is atropine's mechanism and clinical use?",answer:"Muscarinic antagonist blocking acetylcholine. Uses: bradycardia (increases HR), preanesthetic (reduces secretions), organophosphate toxicity (blocks SLUD signs), mydriatic for ophthalmic exams."},
+{id:25,category:"Pathology",categoryClass:"badge-path",species:"Bovine",question:"What is traumatic reticulopericarditis (hardware disease)?",answer:"Ingested metal foreign bodies lodge in reticulum → penetrate diaphragm → pericarditis. Signs: muffled heart sounds, jugular distension, brisket edema. Prevention: oral rumen magnet."},
+{id:26,category:"Pathology",categoryClass:"badge-path",species:"Small Animal",question:"Describe canine parvovirus (CPV-2) presentation.",answer:"Severe hemorrhagic gastroenteritis in unvaccinated puppies (6wk-6mo): bloody diarrhea, vomiting, lethargy, dehydration. Hallmark: marked leukopenia. Virus destroys intestinal crypts + bone marrow. High mortality without IV fluids."},
+{id:27,category:"Pathology",categoryClass:"badge-path",species:"Small Animal",question:"What is immune-mediated hemolytic anemia (IMHA)?",answer:"Autoimmune RBC destruction. Diagnosis: regenerative anemia, spherocytes on smear, positive Coombs test, autoagglutination, icteric serum, bilirubinuria. Treatment: immunosuppressive corticosteroids."},
+{id:28,category:"Pathology",categoryClass:"badge-path",species:"Bovine",question:"What causes BSE (mad cow disease)?",answer:"Prions — misfolded PrPSc proteins causing spongiform brain degeneration. Zoonotic: linked to variant Creutzfeldt-Jakob disease in humans via contaminated beef. No treatment, no vaccine."},
+{id:29,category:"Pathology",categoryClass:"badge-path",species:"Equine",question:"What is equine metabolic syndrome (EMS)?",answer:"Obesity (cresty neck), insulin dysregulation (hyperinsulinemia), predisposition to laminitis. Management: weight loss, exercise, restrict non-structural carbohydrates, possibly metformin."},
+{id:30,category:"Pathology",categoryClass:"badge-path",species:"Multi-species",question:"What is disseminated intravascular coagulation (DIC)?",answer:"Widespread clotting cascade activation → simultaneous thrombosis AND hemorrhage from consumption of clotting factors/platelets. Causes: sepsis, neoplasia, heat stroke. Labs: prolonged PT/PTT, low platelets, elevated D-dimers."},
+{id:31,category:"Microbiology",categoryClass:"badge-micro",species:"Small Animal",question:"What causes kennel cough?",answer:"Primary pathogen: Bordetella bronchiseptica + canine parainfluenza virus and/or adenovirus-2. Aerosolized transmission. Signs: harsh honking cough with terminal retch. Usually self-limiting but can progress to pneumonia."},
+{id:32,category:"Microbiology",categoryClass:"badge-micro",species:"Multi-species",question:"Gram-positive vs gram-negative bacteria — key differences?",answer:"Gram+: thick peptidoglycan, retain crystal violet (purple). Examples: Staph, Strep, Clostridium. Gram-: thin peptidoglycan + outer membrane with LPS (endotoxin), stain pink. Examples: E. coli, Salmonella. LPS triggers septic shock."},
+{id:33,category:"Microbiology",categoryClass:"badge-micro",species:"Bovine",question:"What is Johne's disease?",answer:"Caused by Mycobacterium avium subsp. paratuberculosis. Chronic granulomatous enteritis: progressive weight loss, 'pipe-stream' diarrhea, protein-losing enteropathy. Long incubation (2-5yr). No treatment. Fecal-oral transmission."},
+{id:34,category:"Microbiology",categoryClass:"badge-micro",species:"Multi-species",question:"What is rabies and why is it critical?",answer:"Lyssavirus (Rhabdoviridae), bullet-shaped, negative-sense RNA. Nearly 100% fatal once symptomatic. Bite transmission via saliva. Retrograde axonal transport to CNS. Reservoirs: raccoons, skunks, bats, foxes. Negri bodies are pathognomonic."},
+{id:35,category:"Microbiology",categoryClass:"badge-micro",species:"Canine",question:"What is canine distemper?",answer:"Canine Distemper Virus (Morbillivirus). Affects respiratory (discharge, pneumonia), GI (diarrhea), CNS (seizures, myoclonus, 'chewing gum fits'). Hyperkeratosis of pads/nose ('hard pad'). Prevented by core MLV vaccine."},
+{id:36,category:"Microbiology",categoryClass:"badge-micro",species:"Bovine",question:"What is BVD and why are PI animals dangerous?",answer:"Bovine Viral Diarrhea — Pestivirus. Fetal infection <125 days gestation creates persistently infected (PI) animals: immunotolerant, shedding virus continuously for life. PI animals are the main herd reservoir — must be identified and removed."},
+{id:37,category:"Parasitology",categoryClass:"badge-parasit",species:"Canine",question:"Describe heartworm (Dirofilaria immitis) lifecycle.",answer:"Mosquito deposits L3 on skin → migrate through tissues → reach pulmonary arteries as adults in ~6 months. Cause pulmonary hypertension, endarteritis, right heart failure. Prevention: monthly ivermectin/moxidectin. Treatment: melarsomine."},
+{id:38,category:"Parasitology",categoryClass:"badge-parasit",species:"Equine",question:"What are the main GI parasites of horses?",answer:"Small strongyles (cyathostomins): most common; encysted larvae cause larval cyathostominosis. Large strongyles (S. vulgaris): verminous arteritis, colic. Tapeworms (Anoplocephala): ileocecal intussusception risk."},
+{id:39,category:"Parasitology",categoryClass:"badge-parasit",species:"Small Animal",question:"What is the zoonotic risk of Toxocara (roundworm)?",answer:"Toxocara canis/cati eggs shed in feces become infective in 2-4 weeks. Humans (children) ingest → visceral larva migrans or ocular larva migrans. Routine deworming from 2 weeks of age is critical for public health."},
+{id:40,category:"Parasitology",categoryClass:"badge-parasit",species:"Bovine",question:"What is Fasciola hepatica (liver fluke)?",answer:"Lifecycle via snail intermediate host. Metacercariae on pasture ingested → juvenile flukes penetrate gut → migrate through liver → adults in bile ducts → fibrosis ('pipestem liver'). Treatment: triclabendazole."},
+{id:41,category:"Parasitology",categoryClass:"badge-parasit",species:"Small Ruminant",question:"What is Haemonchus contortus?",answer:"The 'barber pole worm' — blood-sucking abomasal nematode. Each adult removes ~0.05 mL blood/day. Causes severe anemia, bottle jaw. Use FAMACHA scoring (conjunctival color) for targeted selective treatment to slow resistance."},
+{id:42,category:"Toxicology",categoryClass:"badge-tox",species:"Canine",question:"What are the signs and treatment of chocolate toxicity?",answer:"Theobromine/caffeine (dark chocolate worst). Signs: vomiting, diarrhea, hyperactivity, tachycardia, arrhythmias, tremors, seizures. Treatment: emesis <2hrs, activated charcoal, IV fluids, cardiac monitoring, anticonvulsants."},
+{id:43,category:"Toxicology",categoryClass:"badge-tox",species:"Canine",question:"Why are grapes/raisins toxic to dogs?",answer:"Exact toxin unknown (suspected tartaric acid). Causes idiosyncratic acute kidney injury in some dogs. Signs: vomiting, then anorexia, oliguria/anuria in 24-72h. Treatment: early decontamination, aggressive IV fluid diuresis."},
+{id:44,category:"Toxicology",categoryClass:"badge-tox",species:"Feline",question:"What household items are particularly toxic to cats?",answer:"Lilies (Lilium/Hemerocallis) — acute renal failure. Permethrin (dog flea products) — tremors, seizures. Essential oils (tea tree) — hepatotoxic. Acetaminophen — methemoglobinemia + hepatic necrosis."},
+{id:45,category:"Toxicology",categoryClass:"badge-tox",species:"Bovine",question:"What is nitrate/nitrite poisoning in cattle?",answer:"Rumen converts nitrate (from fertilized forages) to nitrite → methemoglobinemia. Signs: chocolate-brown blood, dyspnea, rapid death. Treatment: IV methylene blue 1-2 mg/kg."},
+{id:46,category:"Toxicology",categoryClass:"badge-tox",species:"Multi-species",question:"How do anticoagulant rodenticides work?",answer:"Inhibit vitamin K epoxide reductase → block recycling of vitamin K → clotting factors II,VII,IX,X cannot be activated. Bleeding 2-5 days later. Treatment: vitamin K1 orally for 4-6 weeks. Fresh frozen plasma for acute hemorrhage."},
+{id:47,category:"Clinical",categoryClass:"badge-clinical",species:"Small Animal",question:"What is GDV and why is it a surgical emergency?",answer:"Gastric Dilatation-Volvulus: stomach distends + rotates, trapping gas, compressing vena cava → shock, gastric necrosis. Treatment: IV fluids, decompression, then surgical derotation + gastropexy. Deep-chested breeds predisposed."},
+{id:48,category:"Clinical",categoryClass:"badge-clinical",species:"Equine",question:"What are the main categories of equine colic?",answer:"(1) Spasmodic/gas — often self-limiting. (2) Impaction — pelvic flexure most common. (3) Displacement — nephrosplenic entrapment. (4) Strangulating — volvulus/lipoma; most urgent surgical emergency (rapid necrosis)."},
+{id:49,category:"Clinical",categoryClass:"badge-clinical",species:"Canine",question:"How do you assess dehydration percentage in a dog?",answer:"5%: subtle skin tenting. 6-8%: definite tenting, dry MM, mild tachycardia. 8-10%: marked tenting, prolonged CRT, sunken eyes. 10-12%: shock signs. >12%: moribund. Fluid deficit (mL) = kg x % dehydration x 10."},
+{id:50,category:"Clinical",categoryClass:"badge-clinical",species:"Feline",question:"What is FLUTD and urethral obstruction?",answer:"Feline lower urinary tract disease. Most common cause in young cats: feline idiopathic cystitis. Male cats obstruct due to narrow urethra (mucous plugs, struvite). Emergency: hyperkalemia → bradycardia → cardiac arrest. Treatment: catheterize, IV fluids, correct K+."},
+{id:51,category:"Clinical",categoryClass:"badge-clinical",species:"Bovine",question:"What is left displaced abomasum (LDA)?",answer:"Gas-filled abomasum migrates left between rumen and body wall. Common in fresh dairy cows. Signs: decreased appetite/milk, ketosis, 'ping' on left auscultation-percussion. Fix: right flank omentopexy, left abomasopexy, or roll-and-toggle."},
+{id:52,category:"Reproduction",categoryClass:"badge-repro",species:"Canine",question:"What is pyometra and when does it occur?",answer:"Bacterial uterine infection (usually E. coli) during diestrus when progesterone is high. Open: vaginal discharge. Closed: no discharge, risk of sepsis/rupture. Treatment: ovariohysterectomy (OHE). Medical option: prostaglandins + aglepristone."},
+{id:53,category:"Reproduction",categoryClass:"badge-repro",species:"Bovine",question:"Describe the stages of bovine parturition.",answer:"Stage 1 (2-6h): cervical dilation, restlessness. Stage 2 (30min-4h): calf delivery (front feet + head first). Stage 3 (2-8h): placenta expulsion. Retained fetal membranes if not passed in 12-24h."},
+{id:54,category:"Reproduction",categoryClass:"badge-repro",species:"Equine",question:"What is equine gestation length and what is a 'red bag' delivery?",answer:"~340 days. Red-bag = premature chorioallantois separation. Thick red membrane appears instead of white amnion — foal's O2 is cut off. Emergency: rupture membrane immediately, deliver foal rapidly."},
+{id:55,category:"Reproduction",categoryClass:"badge-repro",species:"Multi-species",question:"What hormones control the estrous cycle?",answer:"GnRH → FSH+LH. FSH: follicle growth → estrogen (estrus behavior). LH surge: ovulation. Corpus luteum: progesterone (pregnancy maintenance). PGF2alpha: luteolysis if no pregnancy → new cycle. Dogs are unique: prolonged diestrus, no uterine PGF2alpha-driven luteolysis."},
+{id:56,category:"Nutrition",categoryClass:"badge-nutri",species:"Feline",question:"Why are cats obligate carnivores?",answer:"Cannot synthesize taurine, vitamin A, arachidonic acid, or niacin. High protein requirement — use amino acids for gluconeogenesis. All these nutrients must come from animal tissue."},
+{id:57,category:"Nutrition",categoryClass:"badge-nutri",species:"Bovine",question:"What is ruminal acidosis?",answer:"Grain overload → rapid fermentation → lactic acid → rumen pH <5.5. Acute: rumen stasis, metabolic acidosis, laminitis, death. Subacute (SARA): reduced intake, milk fat depression, liver abscesses. Prevention: gradual diet transitions, adequate fiber."},
+{id:58,category:"Nutrition",categoryClass:"badge-nutri",species:"Canine",question:"What are the risks of raw diets for dogs?",answer:"Bacterial contamination (Salmonella, E. coli) to pet and humans. Nutritional imbalances (Ca:P ratio → metabolic bone disease). GI perforation from bones. No proven benefits over balanced commercial diets. AVMA/FDA advise against."},
+{id:59,category:"Public Health",categoryClass:"badge-pubhealth",species:"Multi-species",question:"Name 5 important zoonotic diseases.",answer:"Rabies (wildlife/dogs), Leptospirosis (rodent/dog urine), Brucellosis (cattle/swine), Salmonellosis (reptiles/poultry), Toxoplasmosis (cat feces). Others: ringworm, MRSA, Campylobacter, E. coli O157:H7, Q fever."},
+{id:60,category:"Public Health",categoryClass:"badge-pubhealth",species:"Bovine",question:"What are drug withdrawal times in food animals?",answer:"Minimum time between last drug administration and slaughter/milking for human consumption. Ensures residues < Maximum Residue Limits. Violations: AMR, consumer allergies, trade bans. Vets legally responsible. Extra-label use requires extended withdrawals."}
 ];
 
-// ===== QUIZ DATA =====
 const quizQuestions = [
-  {
-    id: 1, category: "Anatomy", categoryClass: "badge-anatomy", species: "Equine",
-    question: "Which of the following domestic species lacks a gallbladder?",
-    options: ["Dog", "Cat", "Horse", "Pig"],
-    correct: 2,
-    explanation: "The horse lacks a gallbladder. Bile is produced by the liver and flows continuously into the duodenum via the common bile duct, rather than being stored and released intermittently."
-  },
-  {
-    id: 2, category: "Anatomy", categoryClass: "badge-anatomy", species: "Bovine",
-    question: "In the ruminant digestive system, which compartment is considered the 'true stomach' (glandular stomach)?",
-    options: ["Rumen", "Reticulum", "Omasum", "Abomasum"],
-    correct: 3,
-    explanation: "The abomasum is the glandular ('true') stomach of ruminants, analogous to the stomach of monogastric animals. It secretes HCl and pepsinogen for enzymatic digestion. The rumen, reticulum, and omasum are forestomach compartments lined with non-glandular mucosa."
-  },
-  {
-    id: 3, category: "Pharmacology", categoryClass: "badge-pharma", species: "Bovine",
-    question: "Compared to horses, the dose of xylazine in cattle should be approximately:",
-    options: ["The same", "Double", "One-half (1/2)", "One-tenth (1/10)"],
-    correct: 3,
-    explanation: "Cattle are approximately 10 times more sensitive to xylazine than horses. The bovine dose is about 1/10th the equine dose (0.05–0.1 mg/kg IV in cattle vs. 0.5–1.1 mg/kg IV in horses). Overdosing can cause severe respiratory depression and prolonged recumbency leading to bloat."
-  },
-  {
-    id: 4, category: "Pathology", categoryClass: "badge-path", species: "Small Animal",
-    question: "What is the hallmark clinical and laboratory finding in canine parvovirus (CPV-2) infection?",
-    options: [
-      "Chronic cough and nasal discharge",
-      "Hemorrhagic diarrhea and leukopenia",
-      "Polyuria and polydipsia",
-      "Multifocal skin lesions and eosinophilia"
-    ],
-    correct: 1,
-    explanation: "CPV-2 targets rapidly dividing cells — intestinal crypt epithelium (causing hemorrhagic diarrhea) and bone marrow precursors (causing leukopenia, specifically lymphopenia and neutropenia). The combination of severe bloody diarrhea with a markedly low WBC count is characteristic."
-  },
-  {
-    id: 5, category: "Physiology", categoryClass: "badge-physio", species: "Bovine",
-    question: "The appropriate treatment for milk fever (parturient paresis) in a dairy cow is:",
-    options: [
-      "IV dextrose (50%)",
-      "IV calcium borogluconate",
-      "Oral magnesium sulfate",
-      "IM iron dextran"
-    ],
-    correct: 1,
-    explanation: "Milk fever is caused by acute hypocalcemia around calving. IV calcium borogluconate is the standard treatment — it must be administered slowly while monitoring heart rate, as rapid calcium infusion can cause fatal cardiac arrhythmias (bradycardia, cardiac arrest)."
-  },
-  {
-    id: 6, category: "Clinical", categoryClass: "badge-clinical", species: "Small Animal",
-    question: "In the abbreviation GDV, a life-threatening surgical emergency in dogs, what does the 'V' stand for?",
-    options: ["Viral", "Vascular", "Volvulus", "Ventricular"],
-    correct: 2,
-    explanation: "GDV = Gastric Dilatation-Volvulus. The stomach fills with gas (dilatation) and rotates on its mesenteric axis (volvulus), trapping gas, obstructing blood flow, and causing hypovolemic shock. Requires emergency surgical derotation and gastropexy."
-  },
-  {
-    id: 7, category: "Microbiology", categoryClass: "badge-micro", species: "Small Animal",
-    question: "The primary bacterial causative agent of kennel cough (infectious tracheobronchitis) is:",
-    options: ["Escherichia coli", "Bordetella bronchiseptica", "Staphylococcus pseudintermedius", "Clostridium perfringens"],
-    correct: 1,
-    explanation: "Bordetella bronchiseptica is the primary bacterial pathogen in kennel cough, often acting synergistically with viral agents (canine parainfluenza virus, canine adenovirus-2). It colonizes the respiratory epithelium and produces toxins that impair mucociliary clearance."
-  },
-  {
-    id: 8, category: "Pathology", categoryClass: "badge-path", species: "Bovine",
-    question: "Traumatic reticulopericarditis (hardware disease) in cattle is best prevented by:",
-    options: ["Prophylactic antibiotics", "Annual vaccination", "Oral administration of a rumen magnet", "Routine deworming"],
-    correct: 2,
-    explanation: "A rumen (cow) magnet is administered orally and settles in the reticulum, where it attracts and retains metallic foreign bodies (nails, wire fragments) before they can penetrate the reticular wall and damage the diaphragm or pericardium."
-  },
-  {
-    id: 9, category: "Clinical", categoryClass: "badge-clinical", species: "Equine",
-    question: "Which category of equine colic is the most urgent surgical emergency due to compromised intestinal blood supply?",
-    options: ["Spasmodic (gas) colic", "Simple impaction colic", "Strangulating colic", "Spasmodic colic with mild tympany"],
-    correct: 2,
-    explanation: "Strangulating lesions (e.g., small intestinal volvulus, pedunculated lipoma entrapment) occlude the mesenteric blood supply, causing rapid ischemic necrosis of the affected bowel. Without emergency surgery, these are rapidly fatal. Non-strangulating forms often respond to medical management."
-  },
-  {
-    id: 10, category: "Pharmacology", categoryClass: "badge-pharma", species: "Small Animal",
-    question: "Meloxicam achieves its anti-inflammatory effect primarily by inhibiting which enzyme?",
-    options: ["Lipoxygenase (LOX)", "Cyclooxygenase-2 (COX-2)", "GABA transaminase", "Angiotensin-converting enzyme (ACE)"],
-    correct: 1,
-    explanation: "Meloxicam is a preferential COX-2 inhibitor. By inhibiting cyclooxygenase-2, it reduces the synthesis of pro-inflammatory prostaglandins (especially PGE2) at sites of inflammation, providing analgesic, anti-inflammatory, and antipyretic effects while relatively sparing COX-1-mediated protective prostaglandins in the GI tract (though GI side effects can still occur)."
-  }
+{id:1,category:"Anatomy",categoryClass:"badge-anatomy",species:"Equine",question:"Which structure is most commonly affected in navicular syndrome?",options:["Proximal sesamoid bone","Deep digital flexor tendon & navicular bone","Superficial digital flexor tendon","Coffin joint alone"],correct:1,explanation:"Navicular syndrome involves the navicular bone, the DDFT where it passes over the bone, and the navicular bursa."},
+{id:2,category:"Anatomy",categoryClass:"badge-anatomy",species:"Avian",question:"How many air sacs does a typical bird have?",options:["4","6","9","12"],correct:2,explanation:"9 air sacs: 4 paired (cervical, caudal thoracic, cranial thoracic, abdominal) + 1 unpaired (clavicular). They act as bellows for unidirectional airflow."},
+{id:3,category:"Anatomy",categoryClass:"badge-anatomy",species:"Canine",question:"Which nerve is at greatest risk during thyroid surgery?",options:["Hypoglossal nerve","Phrenic nerve","Recurrent laryngeal nerve","Facial nerve"],correct:2,explanation:"The recurrent laryngeal nerve runs in the tracheoesophageal groove near the thyroid. Damage causes laryngeal paralysis."},
+{id:4,category:"Physiology",categoryClass:"badge-physio",species:"Bovine",question:"Which VFA is the primary gluconeogenic precursor in ruminants?",options:["Acetate","Propionate","Butyrate","Valerate"],correct:1,explanation:"Propionate is absorbed from the rumen and converted to glucose in the liver. Critical because ruminants absorb little dietary glucose directly."},
+{id:5,category:"Physiology",categoryClass:"badge-physio",species:"Equine",question:"Why can't horses vomit?",options:["They lack a stomach","Extremely strong cardiac sphincter","No gag reflex","Esophagus too short"],correct:1,explanation:"The very strong lower esophageal sphincter and acute esophageal angle into the stomach prevent retrograde flow. Gastric rupture can occur before vomiting."},
+{id:6,category:"Physiology",categoryClass:"badge-physio",species:"Multi-species",question:"ACE inhibitors block conversion of:",options:["Angiotensin II to III","Angiotensinogen to angiotensin I","Angiotensin I to angiotensin II","Renin to angiotensinogen"],correct:2,explanation:"ACE converts angiotensin I to angiotensin II. Blocking this reduces vasoconstriction and aldosterone secretion — basis for CHF treatment."},
+{id:7,category:"Pharmacology",categoryClass:"badge-pharma",species:"Feline",question:"A cat receives a dog's permethrin flea product. Expected signs?",options:["Vomiting and diarrhea only","Muscle tremors, seizures, hypersalivation","Polyuria and polydipsia","Skin necrosis at site"],correct:1,explanation:"Cats lack glucuronidation enzymes for pyrethroids. Permethrin causes neurotoxicity: tremors, seizures. Treat with bathing, IV lipid emulsion, methocarbamol."},
+{id:8,category:"Pharmacology",categoryClass:"badge-pharma",species:"Multi-species",question:"Which antimicrobial class is CONTRAINDICATED in growing animals?",options:["Penicillins","Fluoroquinolones","Macrolides","Tetracyclines"],correct:1,explanation:"Fluoroquinolones cause cartilage erosion in weight-bearing joints of growing animals. Avoid in puppies, kittens, foals."},
+{id:9,category:"Pharmacology",categoryClass:"badge-pharma",species:"Multi-species",question:"Antidote for organophosphate toxicity?",options:["N-acetylcysteine","Atropine + pralidoxime","Vitamin K1","Methylene blue"],correct:1,explanation:"Atropine blocks muscarinic effects (SLUD). Pralidoxime reactivates AChE if given early. 2-PAM not needed for carbamates (spontaneous reversal)."},
+{id:10,category:"Pathology",categoryClass:"badge-path",species:"Small Animal",question:"Spherocytes on a blood smear in an anemic dog suggest:",options:["Iron deficiency","Immune-mediated hemolytic anemia","Hemangiosarcoma","Zinc toxicity"],correct:1,explanation:"Spherocytes are RBCs that lost membrane from antibody-mediated partial phagocytosis. Hallmark of IMHA in dogs."},
+{id:11,category:"Pathology",categoryClass:"badge-path",species:"Multi-species",question:"Hallmark of granulomatous inflammation?",options:["Neutrophilic infiltration","Epithelioid macrophages and giant cells","Eosinophilic infiltration","Fibrin only"],correct:1,explanation:"Granulomas contain epithelioid macrophages forming multinucleated giant cells. Seen with mycobacteria, fungi, foreign bodies."},
+{id:12,category:"Pathology",categoryClass:"badge-path",species:"Canine",question:"Hemangiosarcoma most commonly arises in which organ?",options:["Liver","Spleen","Kidney","Lung"],correct:1,explanation:"Spleen is most common primary site. Often presents as acute hemoabdomen from tumor rupture. Common in German Shepherds, Golden Retrievers."},
+{id:13,category:"Microbiology",categoryClass:"badge-micro",species:"Multi-species",question:"Negri bodies in neurons are pathognomonic for:",options:["Canine distemper","Rabies","West Nile virus","Equine herpesvirus"],correct:1,explanation:"Negri bodies are eosinophilic intracytoplasmic inclusions in neurons of rabies-infected animals. FAT is the gold standard test."},
+{id:14,category:"Microbiology",categoryClass:"badge-micro",species:"Bovine",question:"Which bacteria causes 'wooden tongue' in cattle?",options:["Actinomyces bovis","Actinobacillus lignieresii","Fusobacterium necrophorum","Trueperella pyogenes"],correct:1,explanation:"A. lignieresii causes wooden tongue (granulomatous glossitis). A. bovis causes lumpy jaw (mandibular osteomyelitis with sulfur granules)."},
+{id:15,category:"Microbiology",categoryClass:"badge-micro",species:"Canine",question:"Leptospirosis is transmitted via:",options:["Tick bites","Infected urine/contaminated water","Flea bites","Respiratory droplets"],correct:1,explanation:"Leptospira spirochetes shed in urine of rodents/wildlife/livestock. Contact through water/soil via skin abrasions or mucous membranes. Zoonotic."},
+{id:16,category:"Parasitology",categoryClass:"badge-parasit",species:"Canine",question:"The SNAP 4Dx test does NOT detect:",options:["Dirofilaria immitis","Borrelia burgdorferi","Babesia canis","Anaplasma phagocytophilum"],correct:2,explanation:"SNAP 4Dx tests: heartworm, Lyme, Ehrlichia, Anaplasma. Babesia requires separate testing (smear, PCR, serology)."},
+{id:17,category:"Parasitology",categoryClass:"badge-parasit",species:"Small Ruminant",question:"FAMACHA scoring is based on:",options:["Fecal egg count","Conjunctival color","Body condition score","Milk production"],correct:1,explanation:"FAMACHA scores conjunctival color 1 (red/normal) to 5 (white/severely anemic) for Haemonchus. Only score 3-5 animals are treated — reduces unnecessary anthelmintic use."},
+{id:18,category:"Toxicology",categoryClass:"badge-tox",species:"Canine",question:"Dog bleeding 3 days after rodenticide ingestion — treatment?",options:["IV methylene blue","Oral vitamin K1 for 4-6 weeks","Activated charcoal only","IV calcium gluconate"],correct:1,explanation:"Second-gen anticoagulant rodenticides have long half-lives requiring 4-6 weeks of vitamin K1. Acute hemorrhage also needs fresh frozen plasma. Vitamin K3 is toxic to dogs."},
+{id:19,category:"Toxicology",categoryClass:"badge-tox",species:"Feline",question:"Cat chews Easter lily — which organ fails?",options:["Liver","Heart","Kidneys","Lungs"],correct:2,explanation:"Lilium/Hemerocallis cause acute renal tubular necrosis in cats. Even pollen or vase water exposure can be fatal. Treat with aggressive IV fluids for 48-72h."},
+{id:20,category:"Toxicology",categoryClass:"badge-tox",species:"Bovine",question:"Chocolate-brown blood in cattle suggests:",options:["CO poisoning","Nitrate/nitrite poisoning","Cyanide poisoning","Lead poisoning"],correct:1,explanation:"Nitrite oxidizes hemoglobin to methemoglobin (brown, cannot carry O2). Blood stays brown when exposed to air. Treat: IV methylene blue."},
+{id:21,category:"Clinical",categoryClass:"badge-clinical",species:"Canine",question:"'Double bubble' sign on radiographs diagnoses:",options:["Splenic torsion","GDV","Mesenteric volvulus","Diaphragmatic hernia"],correct:1,explanation:"The displaced pylorus creates the classic double bubble/Popeye arm sign, pathognomonic for GDV. Immediate stabilization then surgery."},
+{id:22,category:"Clinical",categoryClass:"badge-clinical",species:"Feline",question:"Blocked male cat with HR 100 — most dangerous electrolyte problem?",options:["Hyponatremia","Hyperkalemia","Hypocalcemia","Hypomagnesemia"],correct:1,explanation:"Urethral obstruction → K+ retention → cardiotoxicity. K+ >7-8: peaked T waves, wide QRS, bradycardia, arrest. Treat: IV calcium gluconate + insulin/dextrose."},
+{id:23,category:"Clinical",categoryClass:"badge-clinical",species:"Bovine",question:"'Ping' on left abdominal auscultation-percussion in a dairy cow suggests:",options:["Ruminal tympany","Left displaced abomasum","Hardware disease","Abomasal ulcer"],correct:1,explanation:"Metallic ping between ribs 9-13 on the left = gas-filled LDA trapped between rumen and body wall. Most common in fresh dairy cows."},
+{id:24,category:"Reproduction",categoryClass:"badge-repro",species:"Canine",question:"Pyometra develops during which estrous cycle stage?",options:["Proestrus","Estrus","Diestrus","Anestrus"],correct:2,explanation:"Progesterone dominance in diestrus: stimulates endometrial secretion, suppresses local immunity, closes cervix — perfect for bacterial colonization."},
+{id:25,category:"Reproduction",categoryClass:"badge-repro",species:"Equine",question:"'Red bag' delivery in mares is:",options:["Normal placental passage","Premature chorioallantois separation","Meconium staining","Uterine prolapse"],correct:1,explanation:"Premature placental separation cuts off foal's O2. Thick red membrane presents instead of white amnion — must be ruptured immediately."},
+{id:26,category:"Reproduction",categoryClass:"badge-repro",species:"Bovine",question:"Retained fetal membranes = failure to pass placenta within:",options:["2-4 hours","6-8 hours","12-24 hours","48-72 hours"],correct:2,explanation:"RFM diagnosed at 12-24h post-calving. Manual removal no longer recommended. Intrauterine antibiotics and systemic support preferred."},
+{id:27,category:"Nutrition",categoryClass:"badge-nutri",species:"Feline",question:"Cat on all-fish diet develops retinal degeneration + DCM. Deficiency?",options:["Vitamin A","Taurine","Arachidonic acid","Iron"],correct:1,explanation:"Taurine is essential for cats. Deficiency → central retinal degeneration + dilated cardiomyopathy. All commercial cat foods now supplemented."},
+{id:28,category:"Nutrition",categoryClass:"badge-nutri",species:"Bovine",question:"SARA is defined as rumen pH below:",options:["7.0","6.5","5.8","5.0"],correct:2,explanation:"SARA = rumen pH <5.5-5.8 for >3h/day. Consequences: reduced intake, milk fat depression, laminitis, liver abscesses from rumenitis → portal bacteremia."},
+{id:29,category:"Public Health",categoryClass:"badge-pubhealth",species:"Multi-species",question:"Which zoonosis is transmitted via contaminated urine/water?",options:["Brucellosis","Leptospirosis","Toxoplasmosis","Q fever"],correct:1,explanation:"Leptospira shed in urine of infected animals. Humans infected via contaminated water through skin/mucous membranes. Can cause Weil's disease."},
+{id:30,category:"Public Health",categoryClass:"badge-pubhealth",species:"Bovine",question:"Extra-label drug use in food animals requires:",options:["No special requirements","Valid VCPR","FDA approval only","Written farmer consent only"],correct:1,explanation:"ELDU requires valid VCPR, proper diagnosis, no approved alternative, and veterinarian-established extended withdrawal time."}
 ];
 
-// ===== STATE =====
-let currentCard = 0;
-let isFlipped = false;
-let currentQuiz = 0;
-let quizScore = 0;
-let quizAnswered = 0;
-let quizLocked = false;
+const clinicalCases = [
+{id:1,title:"Acute Abdomen in a Great Dane",species:"Canine",signalment:"8-year-old male Great Dane",history:"Progressive abdominal distension after eating, non-productive retching, restlessness, and hypersalivation over 2 hours.",exam:"HR 160 bpm, CRT >3 sec, weak femoral pulses, tympanic abdomen, pale mucous membranes, distressed.",
+steps:[
+{question:"What is your top differential diagnosis?",options:["Splenic torsion","Gastric dilatation-volvulus (GDV)","Acute pancreatitis","Mesenteric volvulus"],correct:1,explanation:"Classic GDV presentation: large breed, post-prandial, non-productive retching, tympanic abdomen, cardiovascular compromise."},
+{question:"What is your first priority?",options:["Immediate surgery","IV crystalloid fluid resuscitation + gastric decompression","Abdominal radiographs first","Oral antacids"],correct:1,explanation:"Stabilize first: large-bore IV catheters for fluid resuscitation (treating hypovolemic shock) while simultaneously attempting gastric decompression via orogastric tube or trocarization."},
+{question:"Surgery confirms GDV with viable stomach. What procedure prevents recurrence?",options:["Gastropexy","Partial gastrectomy","Splenectomy alone","Pyloromyotomy"],correct:0,explanation:"Gastropexy permanently adheres the stomach to the body wall. Without it, recurrence rate is >75%. Splenectomy may also be needed if the spleen is compromised."}
+],summary:"This case demonstrates the classic GDV emergency: recognize signs quickly, stabilize with fluids and decompression, then surgery with gastropexy. Time is critical — delayed treatment leads to gastric necrosis and death."},
 
-// ===== PERSISTENCE =====
-function loadProgress() {
-  try {
-    const data = JSON.parse(localStorage.getItem('bcse_progress'));
-    return data || { mastered: [], bestScore: 0, studied: [], lastDate: null, streak: 0, quizHistory: {} };
-  } catch { return { mastered: [], bestScore: 0, studied: [], lastDate: null, streak: 0, quizHistory: {} }; }
-}
-function saveProgress(data) {
-  localStorage.setItem('bcse_progress', JSON.stringify(data));
+{id:2,title:"Blocked Cat",species:"Feline",signalment:"4-year-old neutered male DSH",history:"Straining in litter box for 24 hours, vocalizing, not eating. Owner noticed only small drops of bloody urine yesterday.",exam:"HR 100 bpm (bradycardia), hypothermic (36.8C), painful distended bladder on palpation, lethargic, weak.",
+steps:[
+{question:"What is the most immediately life-threatening complication?",options:["Bladder rupture","Hyperkalemia causing cardiac arrest","Uremia","Dehydration"],correct:1,explanation:"Urethral obstruction prevents K+ excretion → hyperkalemia. K+ >7-8 mEq/L causes peaked T waves, wide QRS, bradycardia, and potentially fatal cardiac arrest. This cat's bradycardia is a red flag."},
+{question:"What is your first treatment step?",options:["Urethral catheterization immediately","IV fluids + calcium gluconate to stabilize the heart","Cystocentesis to empty bladder","Perineal urethrostomy"],correct:1,explanation:"Stabilize the heart first: IV calcium gluconate is cardioprotective (doesn't lower K+ but stabilizes myocardium). Warm IV fluids + insulin/dextrose to shift K+ intracellularly. Then catheterize once stable."},
+{question:"After unblocking, what dietary change helps prevent recurrence of struvite stones?",options:["High-protein raw diet","Urinary dissolution diet (acidifying, low magnesium)","High-fiber diet","Grain-free diet"],correct:1,explanation:"Struvite forms in alkaline urine with high Mg/PO4. Urinary diets acidify urine and reduce mineral content. Also: increase water intake (wet food), reduce stress, and monitor for re-obstruction in first 72h."}
+],summary:"Feline urethral obstruction is a true emergency. Recognize bradycardia as a sign of hyperkalemia, stabilize cardiac function first, then relieve the obstruction. Long-term management includes dietary modification and stress reduction."},
+
+{id:3,title:"Colicky Horse",species:"Equine",signalment:"12-year-old Thoroughbred gelding",history:"Acute onset pawing, rolling, looking at flank, sweating for 3 hours. Had a recent diet change to new hay. Passed small amount of dry feces earlier today.",exam:"HR 56 bpm, decreased gut sounds in all quadrants, mild abdominal distension, rectal exam reveals firm impaction at pelvic flexure.",
+steps:[
+{question:"Based on the presentation, what type of colic is this?",options:["Strangulating small intestinal volvulus","Pelvic flexure impaction","Nephrosplenic entrapment","Spasmodic colic"],correct:1,explanation:"Key findings: dry feces, recent hay change, firm impaction palpable at pelvic flexure on rectal. HR 56 is mildly elevated — suggests pain but no cardiovascular compromise (unlike strangulating lesions where HR would be much higher)."},
+{question:"What is the initial medical management?",options:["Immediate surgery","IV fluids + nasogastric intubation with water/electrolytes + analgesics","Oral mineral oil only","Withhold food and water for 24 hours"],correct:1,explanation:"Impactions are usually medical: aggressive IV fluid therapy to rehydrate the impaction, nasogastric water/electrolyte administration, analgesics (flunixin meglumine for pain, buscopan for spasm). Monitor HR, gut sounds, and rectal findings serially."},
+{question:"What sign would indicate this case requires surgical intervention?",options:["Horse eating hay normally","Persistent uncontrolled pain despite analgesics + deteriorating cardiovascular status","Passing soft manure","Mild pawing that resolves"],correct:1,explanation:"Surgical indicators: unrelenting pain despite adequate analgesia, worsening tachycardia (HR >60-80), nasogastric reflux, loss of palpable impaction with worsening signs (suggests displacement), or no improvement after 24-48h of aggressive medical therapy."}
+],summary:"Pelvic flexure impaction is the most common large colon impaction. Most respond to medical therapy (IV fluids, nasogastric hydration, pain management). Key is serial monitoring — escalate to surgery if pain becomes unmanageable or cardiovascular status deteriorates."},
+
+{id:4,title:"Puppy with Bloody Diarrhea",species:"Canine",signalment:"10-week-old unvaccinated Rottweiler puppy",history:"Purchased from a pet store 5 days ago. Progressive lethargy, vomiting for 2 days, now profuse bloody foul-smelling diarrhea. Not eating.",exam:"HR 200 bpm, hypothermic (37.2C), severely dehydrated (10%), sunken eyes, prolonged CRT (4 sec), weak pulses, foul bloody stool on thermometer.",
+steps:[
+{question:"What is the most likely diagnosis?",options:["Intestinal foreign body","Canine parvovirus (CPV-2)","Hemorrhagic gastroenteritis (HGE)","Salmon poisoning"],correct:1,explanation:"Classic CPV-2: unvaccinated young puppy (especially Rottweiler — predisposed breed), pet store origin, hemorrhagic diarrhea + vomiting + severe dehydration. Confirm with fecal SNAP parvo test."},
+{question:"What lab finding is the hallmark of parvovirus?",options:["Elevated liver enzymes","Marked leukopenia (low WBC)","Thrombocytosis","Hyperglycemia"],correct:1,explanation:"CPV-2 destroys bone marrow precursors causing severe leukopenia (lymphopenia + neutropenia). This, combined with damaged intestinal barrier, makes sepsis the major cause of death."},
+{question:"What is the cornerstone of treatment?",options:["Oral antibiotics at home","Aggressive IV fluid therapy + antiemetics + broad-spectrum antibiotics","Antiviral medication","Blood transfusion alone"],correct:1,explanation:"No antiviral exists. Treatment is supportive: aggressive IV crystalloids (correct 10% dehydration + ongoing losses), antiemetics (maropitant), broad-spectrum antibiotics (ampicillin + enrofloxacin or cefoxitin) to prevent sepsis through the compromised gut barrier. NPO until vomiting stops."}
+],summary:"Canine parvovirus is devastating but survivable with aggressive care. Survival rate with hospitalization is 80-90% vs <10% without treatment. This case highlights why puppy vaccination is critical — prevention is far better than treatment."},
+
+{id:5,title:"Down Dairy Cow After Calving",species:"Bovine",signalment:"6-year-old Holstein dairy cow, 3rd lactation",history:"Calved normally 18 hours ago. Found recumbent this morning, unable to stand. Producing large amount of colostrum. Had a similar episode after last calving.",exam:"Alert but recumbent (sternal), HR 90, hypothermic (37.5C), cool ears, rumen hypomotile (1 contraction/2 min), S-shaped curve to neck, unable to rise.",
+steps:[
+{question:"What is the most likely diagnosis?",options:["Toxic mastitis","Hypocalcemia (milk fever)","Ketosis","Calving paralysis (nerve damage)"],correct:1,explanation:"Classic milk fever: high-producing Holstein, within 72h of calving, recumbent, S-curved neck, cool ears, decreased rumen motility. History of prior episodes increases risk. This is stage 2 milk fever (sternal recumbency)."},
+{question:"What is the treatment and critical precaution?",options:["IM dexamethasone","Slow IV calcium borogluconate with cardiac monitoring","Oral calcium boluses only","IV dextrose 50%"],correct:1,explanation:"Slow IV calcium borogluconate (500mL of 23% solution). MUST monitor heart during infusion — rapid calcium can cause fatal arrhythmias (bradycardia, VF). Auscultate continuously. If arrhythmia detected, stop infusion, wait, then restart slowly."},
+{question:"What preventive strategy reduces milk fever risk for next calving?",options:["High-calcium diet during dry period","Low-calcium or anionic salt diet in the last 2-3 weeks pre-calving","Oral antibiotics pre-calving","Increased grain feeding"],correct:1,explanation:"A low-calcium or negative DCAD (anionic salt) diet pre-calving 'primes' the calcium homeostasis system, upregulating PTH receptors and active vitamin D, so the cow can rapidly mobilize calcium when demand surges at calving."}
+],summary:"Milk fever is one of the most common metabolic emergencies in dairy cattle. Recognize the signs (recumbency, cool ears, S-neck), treat with slow IV calcium with cardiac monitoring, and prevent with pre-calving dietary management. Untreated cows progress to lateral recumbency (stage 3) and death."}
+];
+
+const matchingExercises = [
+{id:1,title:"Antimicrobial Mechanisms of Action",category:"Pharmacology",pairs:[
+{left:"Amoxicillin",right:"Cell wall synthesis inhibition"},
+{left:"Enrofloxacin",right:"DNA gyrase inhibition"},
+{left:"Gentamicin",right:"30S ribosomal subunit"},
+{left:"Erythromycin",right:"50S ribosomal subunit"},
+{left:"Trimethoprim-sulfa",right:"Folate synthesis inhibition"}
+]},
+{id:2,title:"Toxins & Their Antidotes",category:"Toxicology",pairs:[
+{left:"Anticoagulant rodenticide",right:"Vitamin K1"},
+{left:"Organophosphate",right:"Atropine + pralidoxime"},
+{left:"Acetaminophen (cat)",right:"N-acetylcysteine"},
+{left:"Methemoglobinemia (nitrate)",right:"Methylene blue"},
+{left:"Ethylene glycol",right:"Fomepizole (4-MP)"}
+]},
+{id:3,title:"Diseases & Their Causative Agents",category:"Microbiology",pairs:[
+{left:"Johne's disease",right:"Mycobacterium avium paratuberculosis"},
+{left:"Kennel cough",right:"Bordetella bronchiseptica"},
+{left:"Wooden tongue",right:"Actinobacillus lignieresii"},
+{left:"Rabies",right:"Lyssavirus (Rhabdoviridae)"},
+{left:"BVD",right:"Pestivirus"},
+{left:"Canine distemper",right:"Morbillivirus (Paramyxoviridae)"}
+]},
+{id:4,title:"Species & Unique Anatomical Features",category:"Anatomy",pairs:[
+{left:"Horse",right:"No gallbladder"},
+{left:"Cattle",right:"4-compartment stomach"},
+{left:"Bird",right:"9 air sacs, parabronchial lungs"},
+{left:"Cat",right:"7 lumbar vertebrae, flexible spine"},
+{left:"Dog",right:"Mandibular = largest salivary gland"}
+]},
+{id:5,title:"Hormones & Reproductive Functions",category:"Reproduction",pairs:[
+{left:"FSH",right:"Follicular growth"},
+{left:"LH surge",right:"Triggers ovulation"},
+{left:"Progesterone",right:"Maintains pregnancy"},
+{left:"PGF2-alpha",right:"Luteolysis (CL regression)"},
+{left:"Estrogen",right:"Behavioral estrus signs"},
+{left:"Oxytocin",right:"Uterine contractions / milk letdown"}
+]}
+];
+
+const tfQuestions = [
+{id:1,category:"Pharmacology",categoryClass:"badge-pharma",species:"Feline",statement:"Acetaminophen is safe in cats at reduced doses.",answer:false,explanation:"NEVER safe in cats. They lack UDP-glucuronosyltransferase → NAPQI accumulation → methemoglobinemia + hepatic necrosis. Even one tablet can be fatal."},
+{id:2,category:"Anatomy",categoryClass:"badge-anatomy",species:"Equine",statement:"Horses have a gallbladder but it is vestigial.",answer:false,explanation:"Horses completely lack a gallbladder. Bile flows continuously from the liver to the duodenum via the common bile duct."},
+{id:3,category:"Pharmacology",categoryClass:"badge-pharma",species:"Multi-species",statement:"Fluoroquinolones should be avoided in growing animals due to cartilage damage.",answer:true,explanation:"Fluoroquinolones (enrofloxacin, marbofloxacin) can cause erosion of articular cartilage in weight-bearing joints of puppies, kittens, and foals."},
+{id:4,category:"Microbiology",categoryClass:"badge-micro",species:"Multi-species",statement:"Gram-negative bacteria have lipopolysaccharide (LPS) in their outer membrane, which can trigger septic shock.",answer:true,explanation:"LPS (endotoxin) is a potent activator of the innate immune system. Massive release during gram-negative sepsis causes systemic inflammatory response, vasodilation, DIC, and organ failure."},
+{id:5,category:"Physiology",categoryClass:"badge-physio",species:"Bovine",statement:"In ruminants, most dietary glucose is absorbed directly from the intestine.",answer:false,explanation:"Rumen microbes ferment most carbohydrates to VFAs before they reach the intestine. Ruminants depend on propionate (VFA) for gluconeogenesis in the liver rather than direct glucose absorption."},
+{id:6,category:"Toxicology",categoryClass:"badge-tox",species:"Canine",statement:"All dogs that ingest grapes develop kidney failure.",answer:false,explanation:"Grape/raisin toxicity is idiosyncratic — not all dogs are affected and there is no reliable toxic dose. However, any ingestion should be treated as potentially dangerous."},
+{id:7,category:"Clinical",categoryClass:"badge-clinical",species:"Small Animal",statement:"In GDV, the stomach rotates on its mesenteric axis, trapping gas and compressing the caudal vena cava.",answer:true,explanation:"Volvulus occludes the cardia and pylorus (trapping gas) and compresses the caudal vena cava and portal vein, reducing venous return → hypovolemic and distributive shock."},
+{id:8,category:"Parasitology",categoryClass:"badge-parasit",species:"Canine",statement:"Heartworm (Dirofilaria immitis) adults live in the left side of the heart.",answer:false,explanation:"Adults live in the PULMONARY ARTERIES and right heart (right ventricle/atrium). They cause pulmonary hypertension and right-sided heart failure, not left-sided."},
+{id:9,category:"Reproduction",categoryClass:"badge-repro",species:"Canine",statement:"Pyometra typically develops during estrus when estrogen is highest.",answer:false,explanation:"Pyometra develops during DIESTRUS when progesterone is dominant. Progesterone stimulates endometrial secretion, suppresses local immunity, and closes the cervix."},
+{id:10,category:"Public Health",categoryClass:"badge-pubhealth",species:"Multi-species",statement:"Rabies is nearly 100% fatal once clinical signs appear in any mammal.",answer:true,explanation:"Once rabies virus reaches the CNS and clinical signs develop, the disease is almost universally fatal in all mammals including humans. Pre-exposure vaccination and post-exposure prophylaxis are the only options."},
+{id:11,category:"Nutrition",categoryClass:"badge-nutri",species:"Feline",statement:"Cats can synthesize taurine from other amino acids like dogs can.",answer:false,explanation:"Cats have very limited ability to synthesize taurine. It is an essential amino acid in cats — deficiency causes retinal degeneration and dilated cardiomyopathy."},
+{id:12,category:"Pathology",categoryClass:"badge-path",species:"Bovine",statement:"BSE (mad cow disease) is caused by a virus.",answer:false,explanation:"BSE is caused by PRIONS — misfolded proteins (PrPSc), not a virus or bacterium. Prions are unique infectious agents with no nucleic acid."},
+{id:13,category:"Pharmacology",categoryClass:"badge-pharma",species:"Bovine",statement:"Cattle require the same dose of xylazine as horses for sedation.",answer:false,explanation:"Cattle are ~10x more sensitive to xylazine. Bovine dose is 0.05-0.1 mg/kg IV vs 0.5-1.1 mg/kg in horses. Overdosing causes severe respiratory depression."},
+{id:14,category:"Microbiology",categoryClass:"badge-micro",species:"Bovine",statement:"Persistently infected (PI) BVD animals appear clinically normal but shed virus continuously.",answer:true,explanation:"PI animals are immunotolerant to the virus (infected before immune competence develops). They look normal but are superinfectant, shedding massive amounts of virus for life."},
+{id:15,category:"Clinical",categoryClass:"badge-clinical",species:"Equine",statement:"Strangulating colic lesions are the most urgent surgical emergency because they involve compromised blood supply.",answer:true,explanation:"Strangulating lesions (volvulus, lipoma entrapment) occlude mesenteric blood supply causing rapid ischemic necrosis. Without emergency surgery, these are rapidly fatal."},
+{id:16,category:"Anatomy",categoryClass:"badge-anatomy",species:"Avian",statement:"Birds have a diaphragm that separates thoracic and abdominal cavities like mammals.",answer:false,explanation:"Birds lack a muscular diaphragm. Their ventilation relies entirely on air sacs acting as bellows. Compression of air sacs (e.g., restraint around the body) can suffocate a bird."},
+{id:17,category:"Toxicology",categoryClass:"badge-tox",species:"Feline",statement:"Lily exposure in cats only causes GI irritation and is not life-threatening.",answer:false,explanation:"Lilies (Lilium/Hemerocallis) cause FATAL acute renal tubular necrosis in cats. ALL parts including pollen and vase water are toxic. This is one of the most dangerous feline toxicities."},
+{id:18,category:"Physiology",categoryClass:"badge-physio",species:"Equine",statement:"Horses can breathe through their mouth during intense exercise.",answer:false,explanation:"Horses are OBLIGATE nasal breathers. The long soft palate seals against the tongue, directing all airflow through the nose. Mouth breathing is not possible under normal conditions."},
+{id:19,category:"Parasitology",categoryClass:"badge-parasit",species:"Small Ruminant",statement:"All sheep in a flock should be dewormed on the same schedule regardless of symptoms.",answer:false,explanation:"Blanket deworming accelerates anthelmintic resistance. Targeted selective treatment (TST) using FAMACHA scoring treats only clinically affected animals, preserving refugia (susceptible worm populations)."},
+{id:20,category:"Reproduction",categoryClass:"badge-repro",species:"Equine",statement:"A 'red bag' delivery is a normal finding during equine foaling.",answer:false,explanation:"Red bag = premature placental separation — an EMERGENCY. The thick red chorioallantois appears instead of the white amnion. Foal's O2 supply is cut off. Must rupture immediately and deliver rapidly."}
+];
+
+const studyNotes = [
+{id:1,category:"Pharmacology",categoryClass:"badge-pharma",title:"NSAID Pharmacology & the COX Pathway",desc:"How NSAIDs work, COX-1 vs COX-2, species differences, toxicity",
+content:`<h4>The Arachidonic Acid Cascade</h4>
+<p>When cell membranes are damaged, <strong>phospholipase A2</strong> releases <strong>arachidonic acid</strong> from membrane phospholipids. Arachidonic acid is then metabolized by two main enzyme pathways:</p>
+<ul><li><strong>Cyclooxygenase (COX) pathway</strong> → produces prostaglandins (PGE2, PGF2α, PGI2) and thromboxane (TXA2)</li>
+<li><strong>Lipoxygenase (LOX) pathway</strong> → produces leukotrienes (involved in bronchoconstriction, chemotaxis)</li></ul>
+<h4>COX-1 vs COX-2</h4>
+<p><strong>COX-1</strong> is constitutive (always present). It produces "housekeeping" prostaglandins that protect the GI mucosa, maintain renal blood flow, and enable platelet aggregation (via TXA2). <strong>COX-2</strong> is inducible — upregulated at sites of inflammation, producing prostaglandins that mediate pain, inflammation, and fever.</p>
+<div class="key-point"><strong>Key concept:</strong> Ideal NSAID = selectively inhibits COX-2 (reduces inflammation) while sparing COX-1 (preserves GI/renal protection). In practice, selectivity is relative, not absolute.</div>
+<h4>NSAID Classification</h4>
+<ul><li><strong>Non-selective</strong> (COX-1 + COX-2): Phenylbutazone, aspirin, flunixin meglumine — most GI side effects</li>
+<li><strong>Preferential COX-2</strong>: Meloxicam, carprofen — reduced but not eliminated GI risk</li>
+<li><strong>Highly selective COX-2</strong>: Firocoxib (Previcox), robenacoxib (Onsior) — lowest GI risk but renal effects still possible</li></ul>
+<h4>Species Differences — Critical for BCSE</h4>
+<ul><li><strong>Cats:</strong> Limited glucuronidation makes them sensitive to all NSAIDs. Meloxicam is used at very low doses; repeated dosing can cause renal failure. Some jurisdictions allow only single-dose use.</li>
+<li><strong>Horses:</strong> Phenylbutazone is the workhorse NSAID but causes right dorsal colitis and renal papillary necrosis, especially in dehydrated horses. Flunixin is preferred for visceral (colic) pain.</li>
+<li><strong>Cattle:</strong> Flunixin and meloxicam are approved. Must respect withdrawal times for meat/milk.</li>
+<li><strong>Dogs:</strong> Broadest selection — carprofen, meloxicam, firocoxib all commonly used for osteoarthritis and post-surgical pain.</li></ul>
+<h4>NSAID Toxicity</h4>
+<p>The three main target organs: <strong>GI tract</strong> (ulceration, perforation — loss of protective PGE2), <strong>kidneys</strong> (papillary necrosis — loss of PGI2-mediated renal blood flow), and <strong>platelets</strong> (aspirin irreversibly acetylates COX-1 in platelets, inhibiting TXA2 and aggregation for the platelet's lifespan).</p>`},
+
+{id:2,category:"Microbiology",categoryClass:"badge-micro",title:"Antimicrobial Mechanisms & Resistance",desc:"How each class works, resistance mechanisms, prudent use",
+content:`<h4>Targets of Antimicrobial Action</h4>
+<p>Bacteria have five main targets that antimicrobials exploit:</p>
+<ul><li><strong>Cell wall synthesis</strong> — Beta-lactams (penicillins, cephalosporins, carbapenems) bind penicillin-binding proteins (PBPs) and inhibit transpeptidation of peptidoglycan. Bactericidal.</li>
+<li><strong>Protein synthesis (30S ribosome)</strong> — Aminoglycosides (gentamicin) cause misreading of mRNA (bactericidal). Tetracyclines block tRNA binding (bacteriostatic).</li>
+<li><strong>Protein synthesis (50S ribosome)</strong> — Macrolides (erythromycin), lincosamides (clindamycin), chloramphenicol block translocation or peptide bond formation. Generally bacteriostatic.</li>
+<li><strong>DNA replication</strong> — Fluoroquinolones (enrofloxacin) inhibit DNA gyrase and topoisomerase IV. Bactericidal.</li>
+<li><strong>Folate synthesis</strong> — Sulfonamides block dihydropteroate synthase; trimethoprim blocks dihydrofolate reductase. Used together (TMS) for synergistic bactericidal effect.</li></ul>
+<div class="key-point"><strong>Clinical pearl:</strong> Combining bactericidal + bacteriostatic drugs can be antagonistic (static drugs slow growth, reducing efficacy of drugs that target actively dividing cells). Exception: this rule is overly simplistic — clinical outcomes often override it.</div>
+<h4>Resistance Mechanisms</h4>
+<ul><li><strong>Enzymatic inactivation</strong> — Beta-lactamases destroy the beta-lactam ring. Solution: clavulanic acid (beta-lactamase inhibitor) combined with amoxicillin.</li>
+<li><strong>Target modification</strong> — Altered PBPs (MRSA), methylated ribosomes (macrolide resistance).</li>
+<li><strong>Efflux pumps</strong> — Actively pump drug out of the cell (tetracycline, fluoroquinolone resistance).</li>
+<li><strong>Reduced permeability</strong> — Altered porins in gram-negative outer membrane limit drug entry.</li></ul>
+<h4>Prudent Antimicrobial Use</h4>
+<p>Antimicrobial resistance (AMR) is a global One Health crisis. Veterinary stewardship principles: culture and sensitivity before empirical therapy when possible, use narrow-spectrum when susceptibility is known, complete full treatment courses, avoid prophylactic use in food animals for growth promotion.</p>`},
+
+{id:3,category:"Physiology",categoryClass:"badge-physio",title:"Ruminant Digestive Physiology",desc:"Rumen function, VFAs, microbial fermentation, clinical relevance",
+content:`<h4>The Ruminant Forestomach System</h4>
+<p>Ruminants (cattle, sheep, goats) have a 4-compartment stomach: <strong>Rumen → Reticulum → Omasum → Abomasum</strong>. The first three are forestomachs (non-glandular); the abomasum is the "true stomach" (glandular, like the monogastric stomach).</p>
+<h4>Rumen Fermentation</h4>
+<p>The rumen is a massive fermentation vat (~150L in cattle) containing billions of bacteria, protozoa, and fungi. These microbes anaerobically ferment carbohydrates (cellulose, starch) into <strong>volatile fatty acids (VFAs)</strong>:</p>
+<ul><li><strong>Acetate (60-70%)</strong> — Main energy source; precursor for body fat and milk fat synthesis. High-fiber diets favor acetate production.</li>
+<li><strong>Propionate (15-25%)</strong> — The ONLY gluconeogenic VFA. Absorbed into portal blood, converted to glucose in the liver. This is how ruminants get most of their glucose.</li>
+<li><strong>Butyrate (10-15%)</strong> — Primary energy source for rumen epithelial cells. Also converted to ketone bodies (beta-hydroxybutyrate, acetoacetate) in the rumen wall.</li></ul>
+<div class="key-point"><strong>Key concept:</strong> Ruminants absorb almost no dietary glucose from the gut — nearly all their glucose comes from hepatic gluconeogenesis using propionate. This is why metabolic diseases like ketosis (energy deficit) and lactic acidosis (excess grain) are so important in cattle.</div>
+<h4>Rumen pH & Buffering</h4>
+<p>Normal rumen pH: 6.0-7.0. Maintained by massive saliva production (100-200 L/day in cattle) containing sodium bicarbonate and phosphate buffers. Fiber stimulates rumination (chewing cud), which stimulates saliva flow.</p>
+<h4>Clinical Relevance</h4>
+<ul><li><strong>Grain overload (acute ruminal acidosis)</strong>: Excessive rapidly fermentable carbs → lactic acid-producing bacteria (S. bovis, Lactobacillus) proliferate → rumen pH drops below 5 → rumen stasis, osmotic water draw into rumen, dehydration, systemic metabolic acidosis, laminitis, death.</li>
+<li><strong>SARA (subacute ruminal acidosis)</strong>: pH 5.0-5.8 intermittently. Causes rumenitis → liver abscesses (F. necrophorum), milk fat depression, laminitis. Insidious and costly in dairy herds.</li>
+<li><strong>Bloat</strong>: Free gas bloat (inability to eructate — esophageal obstruction) or frothy bloat (legume pastures create stable foam trapping gas). Emergency: trocarize rumen or pass stomach tube.</li>
+<li><strong>Ketosis</strong>: In early lactation, energy demand exceeds intake → negative energy balance → excessive fat mobilization → ketone body accumulation. Treat with IV dextrose and propylene glycol (gluconeogenic precursor).</li></ul>`},
+
+{id:4,category:"Pathology",categoryClass:"badge-path",title:"Shock: Types, Pathophysiology & Treatment",desc:"Hypovolemic, distributive, cardiogenic, obstructive shock mechanisms",
+content:`<h4>What is Shock?</h4>
+<p>Shock = inadequate tissue oxygen delivery relative to demand, leading to cellular dysfunction and organ failure. Regardless of the cause, the final common pathway is cellular hypoxia → anaerobic metabolism → lactic acidosis → cell death.</p>
+<h4>Types of Shock</h4>
+<ul><li><strong>Hypovolemic</strong> — Loss of circulating volume. Causes: hemorrhage (trauma, splenic HSA rupture, GI bleed), severe dehydration (parvo, HGE), third-spacing (peritonitis). Treatment: aggressive IV crystalloid +/- colloid replacement, blood products if hemorrhagic.</li>
+<li><strong>Distributive</strong> — Inappropriate vasodilation with maldistribution of blood flow. Causes: sepsis (most common — endotoxin/LPS release), anaphylaxis, SIRS. Treatment: IV fluids + vasopressors (norepinephrine) if fluid-refractory, treat underlying cause.</li>
+<li><strong>Cardiogenic</strong> — Pump failure. Causes: dilated cardiomyopathy, severe arrhythmias, myocardial infarction. Treatment: inotropes (dobutamine), treat arrhythmias, cautious fluid therapy (avoid volume overload).</li>
+<li><strong>Obstructive</strong> — Mechanical obstruction to flow. Causes: pericardial effusion/tamponade, GDV (vena cava compression), tension pneumothorax, pulmonary thromboembolism. Treatment: relieve the obstruction.</li></ul>
+<div class="key-point"><strong>Clinical pearl:</strong> GDV combines BOTH hypovolemic (poor venous return) and obstructive shock (vena cava compression). This is why it's so rapidly fatal without treatment.</div>
+<h4>Compensatory Mechanisms</h4>
+<p>The body initially compensates via sympathetic activation: tachycardia, vasoconstriction, catecholamine release. Signs of <strong>compensatory shock</strong>: tachycardia, normal or slightly prolonged CRT, red mucous membranes, bounding pulses. As compensation fails → <strong>decompensatory shock</strong>: pale/gray MM, prolonged CRT >3 sec, weak thready pulses, hypothermia, altered mentation, oliguria.</p>
+<h4>Shock Dose Fluids</h4>
+<p>Isotonic crystalloids (LRS, 0.9% NaCl): Dog shock dose = 60-90 mL/kg/hr. Cat = 40-60 mL/kg/hr. Give in boluses of 1/4 to 1/3 of shock dose, reassess perfusion parameters, repeat as needed. Avoid "one-and-done" — titrate to effect.</p>`},
+
+{id:5,category:"Toxicology",categoryClass:"badge-tox",title:"Common Small Animal Toxicoses",desc:"Chocolate, grapes, xylitol, rodenticides, lilies — mechanisms & treatment",
+content:`<h4>Chocolate (Theobromine/Caffeine)</h4>
+<p>Methylxanthines inhibit phosphodiesterase (increasing cAMP), antagonize adenosine receptors, and increase intracellular calcium. <strong>Toxicity by chocolate type</strong> (theobromine content): baker's/dark chocolate >> milk chocolate >> white chocolate. Toxic dose: ~20 mg/kg mild signs, >60 mg/kg severe. Signs are dose-dependent: GI (vomiting, diarrhea) → cardiac (tachycardia, arrhythmias) → CNS (tremors, seizures). Treatment: decontamination, activated charcoal, cardiac monitoring, IV fluids.</p>
+<h4>Grapes & Raisins</h4>
+<p>Cause idiosyncratic acute kidney injury. Recently, <strong>tartaric acid</strong> has been identified as the likely toxin. Not all dogs are susceptible, and no reliable toxic dose exists. Any ingestion should be treated. Early signs: vomiting within hours. Then: anorexia, oliguria/anuria in 24-72h. Treatment: induce emesis if recent, aggressive IV fluid diuresis for 48h, monitor renal values.</p>
+<h4>Xylitol (Birch Sugar)</h4>
+<p>In dogs, xylitol stimulates massive insulin release from the pancreas → <strong>profound hypoglycemia</strong> within 30-60 min. Higher doses also cause acute hepatic necrosis (mechanism unknown). As little as 0.1 g/kg can cause hypoglycemia. Found in sugar-free gum, candy, peanut butter, baked goods. Treatment: dextrose bolus + CRI, liver monitoring.</p>
+<h4>Anticoagulant Rodenticides</h4>
+<p>Second-generation agents (brodifacoum, bromadiolone) inhibit vitamin K epoxide reductase → clotting factors II, VII, IX, X cannot be gamma-carboxylated → coagulopathy. <strong>Bleeding appears 2-5 days post-ingestion</strong> (time for existing clotting factors to be consumed). Diagnosis: prolonged PT (factor VII has shortest half-life — first to be affected). Treatment: Vitamin K1 orally for 4-6 weeks (long tissue half-life of 2nd-gen agents). FFP for acute hemorrhage.</p>
+<h4>Lilies in Cats</h4>
+<p><strong>Lilium</strong> (Easter, Tiger, Asiatic, Stargazer) and <strong>Hemerocallis</strong> (daylily) cause acute renal tubular necrosis. The exact toxin remains unidentified. ALL parts are toxic — even pollen groomed from fur or vase water. Early vomiting (1-6h), then PU/PD → oliguria/anuria. Treatment: aggressive IV fluids for 48-72h if caught early. Once oliguric failure develops, prognosis is grave.</p>
+<div class="key-point"><strong>Remember:</strong> Not all lilies are equally toxic. Peace lilies and calla lilies cause only oral irritation (calcium oxalate crystals). It is specifically Lilium and Hemerocallis species that cause renal failure in cats.</div>`},
+
+{id:6,category:"Reproduction",categoryClass:"badge-repro",title:"Reproductive Endocrinology & the Estrous Cycle",desc:"Hormonal control, species differences, clinical applications",
+content:`<h4>The Hypothalamic-Pituitary-Gonadal Axis</h4>
+<p><strong>GnRH</strong> (hypothalamus) → stimulates anterior pituitary to release <strong>FSH</strong> (follicle stimulating hormone) and <strong>LH</strong> (luteinizing hormone). FSH promotes follicular growth → growing follicles produce <strong>estrogen</strong> → estrogen causes behavioral estrus and prepares the reproductive tract. At peak estrogen, a positive feedback LH surge triggers <strong>ovulation</strong>.</p>
+<h4>Post-Ovulation</h4>
+<p>The ruptured follicle becomes the <strong>corpus luteum (CL)</strong>, which produces <strong>progesterone</strong>. Progesterone: maintains pregnancy, suppresses further estrus cycles, stimulates endometrial gland secretion. If no pregnancy, the uterus releases <strong>PGF2α</strong> → luteolysis (CL destruction) → progesterone drops → new cycle begins.</p>
+<h4>Species Differences — Critical for BCSE</h4>
+<ul><li><strong>Cow:</strong> 21-day cycle, spontaneous ovulator. CL regression by uterine PGF2α on day 16-17 if not pregnant. Exogenous PGF2α (Lutalyse) used for synchronization.</li>
+<li><strong>Mare:</strong> Seasonally polyestrous (long-day breeder). 21-day cycle. Unique: multiple ovulations common, gestation ~340 days, diffuse epitheliochorial placenta.</li>
+<li><strong>Bitch:</strong> Monoestrous (1-2 cycles/year). Unique prolonged diestrus (~2 months) whether pregnant or not. NO uterine PGF2α-driven luteolysis — CL regresses spontaneously. Ovulates primary oocytes that mature in the oviduct over ~48h. Progesterone RISES before ovulation (unique).</li>
+<li><strong>Queen (cat):</strong> Induced ovulator — requires coital stimulation (or GnRH) to trigger LH surge. Without mating, remains in recurring estrus cycles (seasonally polyestrous, long-day breeder).</li>
+<li><strong>Sow:</strong> 21-day cycle, spontaneous ovulator. Litter-bearing, short gestation (~114 days = "3 months, 3 weeks, 3 days").</li></ul>
+<div class="key-point"><strong>Clinical application:</strong> Understanding these differences explains why pyometra occurs in dogs during diestrus (prolonged progesterone), why PGF2α injections synchronize cattle (lyse CL), and why cats in persistent estrus may develop cystic ovaries (no ovulation without mating).</div>`}
+];
+</script>
+<script>
+// === APP LOGIC ===
+let currentCard=0,isFlipped=false,filteredCards=[],shuffledQuiz=[],currentQuiz=0,quizScore=0,quizAnswered=0,quizLocked=false,selectedQuizCount=20;
+let studyActiveCats,studyActiveSpecies,quizActiveCats,tfActiveCats;
+
+function loadProgress(){try{return JSON.parse(localStorage.getItem('bcse_v3'))||defaultProgress()}catch{return defaultProgress()}}
+function defaultProgress(){return{mastered:[],bestScore:0,studied:[],lastDate:null,streak:0,quizHistory:{},casesCompleted:[],matchCompleted:[],tfHistory:{}}}
+function saveProgress(d){localStorage.setItem('bcse_v3',JSON.stringify(d))}
+function toggleCommuteMode(){document.body.classList.toggle('commute-mode');document.querySelector('.commute-toggle').textContent=document.body.classList.contains('commute-mode')?'Normal':'Commute Mode'}
+
+// NAV
+function goHome(){goScreen('dashScreen');document.getElementById('headerTitle').textContent='BCSE Study Buddy';document.getElementById('headerSub').textContent='Canadian Veterinary Exam Prep';document.getElementById('btnBack').classList.remove('show')}
+function goScreen(id,title,sub){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(title){document.getElementById('headerTitle').textContent=title;document.getElementById('headerSub').textContent=sub||'';document.getElementById('btnBack').classList.add('show')}
 }
 
-// ===== COMMUTE MODE =====
-function toggleCommuteMode() {
-  document.body.classList.toggle('commute-mode');
-  const btn = document.querySelector('.commute-toggle');
-  btn.textContent = document.body.classList.contains('commute-mode') ? 'Normal Mode' : 'Commute Mode';
-}
-
-// ===== SCREEN NAV =====
-function switchScreen(name) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t => {
-    t.classList.remove('active');
-    t.setAttribute('aria-selected', 'false');
+// DASHBOARD
+function buildDashboard(){
+  const modes=[
+    {id:'studyScreen',title:'Flashcards',desc:'Flip through cards across all topics',count:flashcards.length+' cards',init:()=>{initStudyFilters();applyStudyFilters()}},
+    {id:'quizScreen',title:'Quiz',desc:'Multiple choice questions',count:quizQuestions.length+' questions',init:initQuizSetup},
+    {id:'casesScreen',title:'Clinical Cases',desc:'Work through real patient scenarios step by step',count:clinicalCases.length+' cases',init:buildCaseList},
+    {id:'matchScreen',title:'Matching',desc:'Connect related concepts',count:matchingExercises.length+' exercises',init:buildMatchList},
+    {id:'tfScreen',title:'True / False',desc:'Rapid-fire statement challenges',count:tfQuestions.length+' questions',init:initTFSetup},
+    {id:'notesScreen',title:'Study Notes',desc:'Deep theory & mechanisms',count:studyNotes.length+' topics',init:buildNotesList},
+    {id:'progressScreen',title:'Progress',desc:'Track your mastery',count:'',init:updateProgressScreen}
+  ];
+  const grid=document.getElementById('dashGrid');
+  grid.innerHTML='';
+  modes.forEach(m=>{
+    const card=document.createElement('div');
+    card.className='dash-card';
+    card.innerHTML=`<span class="dash-title">${m.title}</span><span class="dash-desc">${m.desc}</span><span class="dash-count">${m.count}</span>`;
+    card.onclick=()=>{m.init();goScreen(m.id,m.title)};
+    grid.appendChild(card);
   });
-  document.getElementById(name + 'Screen').classList.add('active');
-  const tabs = document.querySelectorAll('.nav-tab');
-  const idx = { study: 0, quiz: 1, progress: 2 }[name];
-  tabs[idx].classList.add('active');
-  tabs[idx].setAttribute('aria-selected', 'true');
-
-  if (name === 'progress') updateProgressScreen();
-  if (name === 'quiz') { if (quizAnswered === 0) loadQuizQuestion(); }
-  updateGlobalProgress();
 }
 
-// ===== STUDY MODE =====
-function loadCard() {
-  const card = flashcards[currentCard];
-  const progress = loadProgress();
-  document.getElementById('cardCounter').textContent = `${currentCard + 1} / ${flashcards.length}`;
-  document.getElementById('cardFrontMeta').innerHTML =
-    `<span class="badge ${card.categoryClass}">${card.category}</span><span class="species-tag">${card.species}</span>`;
-  document.getElementById('cardQuestion').textContent = card.question;
-  document.getElementById('cardAnswer').textContent = card.answer;
+// FILTERS
+function buildChips(containerId,items,activeSet,onChange){
+  const c=document.getElementById(containerId);c.innerHTML='';
+  items.forEach(v=>{const chip=document.createElement('button');chip.className='filter-chip'+(activeSet.has(v)?' active':'');chip.textContent=v;chip.onclick=()=>{if(activeSet.has(v)){activeSet.delete(v);chip.classList.remove('active')}else{activeSet.add(v);chip.classList.add('active')}if(onChange)onChange()};c.appendChild(chip)});
+}
+function selectAllFilters(t){
+  if(t==='study'){studyActiveCats=new Set(allCats());studyActiveSpecies=new Set(allSpecies());initStudyFilters();applyStudyFilters()}
+  else if(t==='quiz'){quizActiveCats=new Set(quizCats());initQuizSetup()}
+  else if(t==='tf'){tfActiveCats=new Set(tfCats());initTFSetup()}
+}
+function clearAllFilters(t){
+  if(t==='study'){studyActiveCats=new Set();studyActiveSpecies=new Set();initStudyFilters();applyStudyFilters()}
+  else if(t==='quiz'){quizActiveCats=new Set();initQuizSetup()}
+  else if(t==='tf'){tfActiveCats=new Set();initTFSetup()}
+}
+function allCats(){return[...new Set(flashcards.map(c=>c.category))]}
+function allSpecies(){return[...new Set(flashcards.map(c=>c.species))]}
+function quizCats(){return[...new Set(quizQuestions.map(q=>q.category))]}
+function tfCats(){return[...new Set(tfQuestions.map(q=>q.category))]}
 
-  // Track as studied
-  if (!progress.studied.includes(card.id)) {
-    progress.studied.push(card.id);
-    updateStreak(progress);
-    saveProgress(progress);
+// STUDY
+function initStudyFilters(){
+  if(!studyActiveCats)studyActiveCats=new Set(allCats());
+  if(!studyActiveSpecies)studyActiveSpecies=new Set(allSpecies());
+  buildChips('studyCatChips',allCats(),studyActiveCats,applyStudyFilters);
+  buildChips('studySpeciesChips',allSpecies(),studyActiveSpecies,applyStudyFilters);
+}
+function applyStudyFilters(){
+  const s=document.getElementById('searchInput').value.toLowerCase();
+  const fm=document.getElementById('focusMode').checked;
+  const p=loadProgress();
+  filteredCards=flashcards.filter(c=>studyActiveCats.has(c.category)&&studyActiveSpecies.has(c.species)&&(!fm||!p.mastered.includes(c.id))&&(!s||c.question.toLowerCase().includes(s)||c.answer.toLowerCase().includes(s)));
+  currentCard=0;
+  document.getElementById('studyFilterSummary').textContent=filteredCards.length+' of '+flashcards.length+' cards';
+  if(filteredCards.length>0)loadCard();
+  else{document.getElementById('cardCounter').textContent='0 / 0';document.getElementById('cardQuestion').textContent='No cards match filters.';document.getElementById('cardAnswer').textContent='';document.getElementById('cardFrontMeta').innerHTML=''}
+}
+function loadCard(){
+  if(!filteredCards.length)return;const c=filteredCards[currentCard],p=loadProgress();
+  document.getElementById('cardCounter').textContent=(currentCard+1)+' / '+filteredCards.length;
+  document.getElementById('cardFrontMeta').innerHTML='<span class="badge '+c.categoryClass+'">'+c.category+'</span><span class="species-tag">'+c.species+'</span>';
+  document.getElementById('cardQuestion').textContent=c.question;document.getElementById('cardAnswer').textContent=c.answer;
+  if(!p.studied.includes(c.id)){p.studied.push(c.id);updateStreak(p);saveProgress(p)}
+  const btn=document.getElementById('btnMark');
+  if(p.mastered.includes(c.id)){btn.classList.add('marked');btn.textContent='Mastered!'}else{btn.classList.remove('marked');btn.textContent='Mark as Mastered'}
+  isFlipped=false;document.getElementById('flashcard').classList.remove('flipped');
+}
+function flipCard(){isFlipped=!isFlipped;document.getElementById('flashcard').classList.toggle('flipped',isFlipped)}
+function nextCard(){if(!filteredCards.length)return;currentCard=(currentCard+1)%filteredCards.length;loadCard()}
+function prevCard(){if(!filteredCards.length)return;currentCard=(currentCard-1+filteredCards.length)%filteredCards.length;loadCard()}
+function toggleMastered(){if(!filteredCards.length)return;const p=loadProgress(),id=filteredCards[currentCard].id,i=p.mastered.indexOf(id);if(i>-1)p.mastered.splice(i,1);else p.mastered.push(id);saveProgress(p);loadCard()}
+
+// QUIZ
+function shuffleArray(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
+function setQuizCount(n,el){selectedQuizCount=n;document.querySelectorAll('.quiz-count-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active')}
+function showQuizSetup(){document.getElementById('quizSetup').style.display='block';document.getElementById('quizActive').style.display='none';document.getElementById('quizComplete').style.display='none'}
+function initQuizSetup(){if(!quizActiveCats)quizActiveCats=new Set(quizCats());buildChips('quizCatChips',quizCats(),quizActiveCats);showQuizSetup()}
+function startQuiz(){
+  const p=loadProgress();let pool=quizQuestions.filter(q=>quizActiveCats.has(q.category));
+  if(!pool.length){alert('Select at least one category.');return}
+  if(document.getElementById('weakAreaMode').checked&&Object.keys(p.quizHistory).length>0){pool.sort((a,b)=>{const as=p.quizHistory[a.category],bs=p.quizHistory[b.category];return(as?as.correct/as.total:.5)-(bs?bs.correct/bs.total:.5)})}else{pool=shuffleArray(pool)}
+  const n=selectedQuizCount===0?pool.length:Math.min(selectedQuizCount,pool.length);
+  shuffledQuiz=shuffleArray(pool.slice(0,n));currentQuiz=0;quizScore=0;quizAnswered=0;quizLocked=false;
+  document.getElementById('quizSetup').style.display='none';document.getElementById('quizActive').style.display='block';document.getElementById('quizComplete').style.display='none';loadQuizQ()
+}
+function loadQuizQ(){
+  const q=shuffledQuiz[currentQuiz];quizLocked=false;
+  document.getElementById('qNumber').textContent='Question '+(currentQuiz+1)+' of '+shuffledQuiz.length;
+  document.getElementById('qScore').textContent='Score: '+quizScore+' / '+quizAnswered;
+  document.getElementById('qMeta').innerHTML='<span class="badge '+q.categoryClass+'">'+q.category+'</span><span class="species-tag">'+q.species+'</span>';
+  document.getElementById('qText').textContent=q.question;
+  const oc=document.getElementById('qOptions');oc.innerHTML='';
+  q.options.forEach((o,i)=>{const b=document.createElement('button');b.className='quiz-option';b.textContent=o;b.onclick=()=>selectAnswer(i);oc.appendChild(b)});
+  document.getElementById('qExplanation').className='quiz-explanation';document.getElementById('btnNextQ').classList.remove('show')
+}
+function selectAnswer(idx){
+  if(quizLocked)return;quizLocked=true;quizAnswered++;
+  const q=shuffledQuiz[currentQuiz],opts=document.querySelectorAll('.quiz-option');
+  opts.forEach((b,i)=>{b.classList.add('disabled');if(i===q.correct)b.classList.add('correct')});
+  if(idx===q.correct){quizScore++;document.getElementById('qExplanation').className='quiz-explanation correct-exp show';document.getElementById('qExpLabel').textContent='Correct!'}
+  else{opts[idx].classList.add('incorrect');document.getElementById('qExplanation').className='quiz-explanation incorrect-exp show';document.getElementById('qExpLabel').textContent='Incorrect'}
+  document.getElementById('qExpText').textContent=q.explanation;
+  document.getElementById('qScore').textContent='Score: '+quizScore+' / '+quizAnswered;document.getElementById('btnNextQ').classList.add('show');
+  const p=loadProgress();if(!p.quizHistory[q.category])p.quizHistory[q.category]={correct:0,total:0};p.quizHistory[q.category].total++;if(idx===q.correct)p.quizHistory[q.category].correct++;saveProgress(p)
+}
+function nextQuestion(){currentQuiz++;if(currentQuiz>=shuffledQuiz.length)showQuizComplete();else loadQuizQ()}
+function showQuizComplete(){
+  document.getElementById('quizActive').style.display='none';document.getElementById('quizComplete').style.display='block';
+  const pct=Math.round(quizScore/shuffledQuiz.length*100);document.getElementById('finalScore').textContent=pct+'%';
+  document.getElementById('finalMessage').textContent=pct>=80?'Great Work!':pct>=60?'Good Effort!':'Keep Studying!';
+  document.getElementById('finalDetail').textContent=quizScore+'/'+shuffledQuiz.length+' correct';
+  const p=loadProgress();if(pct>p.bestScore){p.bestScore=pct;saveProgress(p)}
+}
+
+// CLINICAL CASES
+function buildCaseList(){
+  const c=document.getElementById('casesList'),a=document.getElementById('caseActive');a.style.display='none';c.style.display='block';c.innerHTML='';
+  clinicalCases.forEach((cs,i)=>{const d=document.createElement('div');d.className='case-card';d.innerHTML='<div class="case-title">'+cs.title+'</div><div class="case-desc">'+cs.species+' — '+cs.signalment+'</div>';d.onclick=()=>startCase(i);c.appendChild(d)});
+}
+function startCase(idx){
+  const cs=clinicalCases[idx],el=document.getElementById('caseActive');
+  document.getElementById('casesList').style.display='none';el.style.display='block';
+  let html='<span class="btn-back-link" onclick="buildCaseList()">Back to cases</span>';
+  html+='<div class="case-info"><h3>Patient</h3><p><strong>'+cs.signalment+'</strong></p><p><strong>History:</strong> '+cs.history+'</p><p><strong>Exam:</strong> '+cs.exam+'</p></div>';
+  html+='<div id="caseSteps"></div>';
+  el.innerHTML=html;
+  showCaseStep(cs,0);
+}
+function showCaseStep(cs,step){
+  if(step>=cs.steps.length){
+    document.getElementById('caseSteps').innerHTML+='<div class="case-summary"><h3>Case Complete</h3><p>'+cs.summary+'</p></div>';
+    const p=loadProgress();if(!p.casesCompleted.includes(cs.id)){p.casesCompleted.push(cs.id);saveProgress(p)}return}
+  const s=cs.steps[step];
+  const div=document.createElement('div');div.className='case-step';div.id='caseStep'+step;
+  div.innerHTML='<div class="step-label">Step '+(step+1)+' of '+cs.steps.length+'</div><p class="step-q">'+s.question+'</p><div class="quiz-options" id="caseOpts'+step+'"></div><div class="quiz-explanation" id="caseExp'+step+'"><strong id="caseExpL'+step+'"></strong><span>'+s.explanation+'</span></div>';
+  document.getElementById('caseSteps').appendChild(div);
+  const oc=document.getElementById('caseOpts'+step);
+  s.options.forEach((o,i)=>{const b=document.createElement('button');b.className='quiz-option';b.textContent=o;b.onclick=()=>answerCaseStep(cs,step,i);oc.appendChild(b)});
+}
+function answerCaseStep(cs,step,idx){
+  const s=cs.steps[step],opts=document.querySelectorAll('#caseOpts'+step+' .quiz-option');
+  opts.forEach((b,i)=>{b.classList.add('disabled');if(i===s.correct)b.classList.add('correct')});
+  if(idx!==s.correct)opts[idx].classList.add('incorrect');
+  const exp=document.getElementById('caseExp'+step);
+  exp.className='quiz-explanation '+(idx===s.correct?'correct-exp':'incorrect-exp')+' show';
+  document.getElementById('caseExpL'+step).textContent=idx===s.correct?'Correct!':'Incorrect';
+  setTimeout(()=>showCaseStep(cs,step+1),300);
+}
+
+// MATCHING
+function buildMatchList(){
+  const c=document.getElementById('matchList'),a=document.getElementById('matchActive');a.style.display='none';c.style.display='block';c.innerHTML='';
+  matchingExercises.forEach((m,i)=>{const d=document.createElement('div');d.className='match-card';d.innerHTML='<div class="match-title">'+m.title+'</div><div class="match-desc">'+m.pairs.length+' pairs</div>';d.onclick=()=>startMatch(i);c.appendChild(d)});
+}
+function startMatch(idx){
+  const m=matchingExercises[idx],el=document.getElementById('matchActive');
+  document.getElementById('matchList').style.display='none';el.style.display='block';
+  const lefts=m.pairs.map((p,i)=>({text:p.left,idx:i}));
+  const rights=shuffleArray(m.pairs.map((p,i)=>({text:p.right,idx:i})));
+  let selectedLeft=null,matched=new Set(),attempts=0,correct=0;
+  function render(){
+    let html='<span class="btn-back-link" onclick="buildMatchList()">Back</span>';
+    html+='<div class="match-score">'+correct+' / '+m.pairs.length+' matched</div>';
+    html+='<div class="match-area"><div class="match-col"><h4>Term</h4>';
+    lefts.forEach(l=>{const cls=matched.has(l.idx)?'match-item matched':selectedLeft===l.idx?'match-item selected':'match-item';html+='<div class="'+cls+'" data-side="left" data-idx="'+l.idx+'">'+l.text+'</div>'});
+    html+='</div><div class="match-col"><h4>Match</h4>';
+    rights.forEach(r=>{const cls=matched.has(r.idx)?'match-item matched':'match-item';html+='<div class="'+cls+'" data-side="right" data-idx="'+r.idx+'">'+r.text+'</div>'});
+    html+='</div></div>';
+    if(correct===m.pairs.length)html+='<div class="case-summary"><h3>Complete!</h3><p>All pairs matched in '+attempts+' attempts.</p></div>';
+    el.innerHTML=html;
+    el.querySelectorAll('.match-item:not(.matched)').forEach(item=>{
+      item.onclick=()=>{
+        const side=item.dataset.side,i=parseInt(item.dataset.idx);
+        if(side==='left'){selectedLeft=i;render()}
+        else if(selectedLeft!==null){attempts++;if(selectedLeft===i){correct++;matched.add(i);selectedLeft=null;render()}else{item.classList.add('wrong');selectedLeft=null;setTimeout(()=>render(),400)}}
+      }
+    });
   }
-
-  // Mark button state
-  const btn = document.getElementById('btnMark');
-  if (progress.mastered.includes(card.id)) {
-    btn.classList.add('marked');
-    btn.textContent = 'Mastered!';
-  } else {
-    btn.classList.remove('marked');
-    btn.textContent = 'Mark as Mastered';
-  }
-
-  // Reset flip
-  isFlipped = false;
-  document.getElementById('flashcard').classList.remove('flipped');
-  updateGlobalProgress();
-}
-function flipCard() {
-  isFlipped = !isFlipped;
-  document.getElementById('flashcard').classList.toggle('flipped', isFlipped);
-}
-function nextCard() {
-  currentCard = (currentCard + 1) % flashcards.length;
-  loadCard();
-}
-function prevCard() {
-  currentCard = (currentCard - 1 + flashcards.length) % flashcards.length;
-  loadCard();
-}
-function toggleMastered() {
-  const progress = loadProgress();
-  const id = flashcards[currentCard].id;
-  const idx = progress.mastered.indexOf(id);
-  if (idx > -1) {
-    progress.mastered.splice(idx, 1);
-  } else {
-    progress.mastered.push(id);
-  }
-  saveProgress(progress);
-  loadCard();
+  render();
 }
 
-// ===== QUIZ MODE =====
-function shuffleArray(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
+// TRUE/FALSE
+function initTFSetup(){if(!tfActiveCats)tfActiveCats=new Set(tfCats());buildChips('tfCatChips',tfCats(),tfActiveCats);document.getElementById('tfSetup').style.display='block';document.getElementById('tfActive').style.display='none';document.getElementById('tfComplete').style.display='none'}
+let tfPool=[],tfIdx=0,tfScore=0,tfTotal=0;
+function startTF(){
+  tfPool=shuffleArray(tfQuestions.filter(q=>tfActiveCats.has(q.category)));
+  if(!tfPool.length){alert('Select at least one category.');return}
+  tfIdx=0;tfScore=0;tfTotal=0;
+  document.getElementById('tfSetup').style.display='none';document.getElementById('tfActive').style.display='block';document.getElementById('tfComplete').style.display='none';showTFQ()
 }
-let shuffledQuiz = [];
-function restartQuiz() {
-  currentQuiz = 0;
-  quizScore = 0;
-  quizAnswered = 0;
-  quizLocked = false;
-  shuffledQuiz = shuffleArray(quizQuestions);
-  document.getElementById('quizActive').style.display = 'block';
-  document.getElementById('quizComplete').style.display = 'none';
-  loadQuizQuestion();
+function showTFQ(){
+  const q=tfPool[tfIdx],el=document.getElementById('tfActive');
+  el.innerHTML='<div class="quiz-header"><span class="q-number">'+(tfIdx+1)+' / '+tfPool.length+'</span><br><span class="q-score">Score: '+tfScore+' / '+tfTotal+'</span></div><div class="tf-statement"><div class="tf-cat"><span class="badge '+q.categoryClass+'">'+q.category+'</span><span class="species-tag">'+q.species+'</span></div><p class="tf-text">'+q.statement+'</p></div><div class="tf-buttons"><button class="tf-btn true-btn" onclick="answerTF(true)">TRUE</button><button class="tf-btn false-btn" onclick="answerTF(false)">FALSE</button></div><div class="quiz-explanation" id="tfExp"><strong id="tfExpL"></strong><span id="tfExpT"></span></div>';
 }
-function loadQuizQuestion() {
-  if (shuffledQuiz.length === 0) shuffledQuiz = shuffleArray(quizQuestions);
-  const q = shuffledQuiz[currentQuiz];
-  quizLocked = false;
-
-  document.getElementById('qNumber').textContent = `Question ${currentQuiz + 1} of ${shuffledQuiz.length}`;
-  document.getElementById('qScore').textContent = `Score: ${quizScore} / ${quizAnswered}`;
-  document.getElementById('qMeta').innerHTML =
-    `<span class="badge ${q.categoryClass}">${q.category}</span><span class="species-tag">${q.species}</span>`;
-  document.getElementById('qText').textContent = q.question;
-
-  const optContainer = document.getElementById('qOptions');
-  optContainer.innerHTML = '';
-  q.options.forEach((opt, i) => {
-    const btn = document.createElement('button');
-    btn.className = 'quiz-option';
-    btn.textContent = opt;
-    btn.onclick = () => selectAnswer(i);
-    optContainer.appendChild(btn);
-  });
-
-  document.getElementById('qExplanation').className = 'quiz-explanation';
-  document.getElementById('qExplanation').classList.remove('show');
-  document.getElementById('btnNextQ').classList.remove('show');
+function answerTF(ans){
+  const q=tfPool[tfIdx],correct=ans===q.answer;tfTotal++;if(correct)tfScore++;
+  const btns=document.querySelectorAll('.tf-btn');btns.forEach(b=>b.classList.add('disabled'));
+  if(ans){btns[0].classList.add(correct?'correct-pick':'incorrect-pick')}else{btns[1].classList.add(correct?'correct-pick':'incorrect-pick')}
+  if(correct){if(!ans)btns[1].classList.add('correct-pick')}else{if(q.answer)btns[0].classList.add('correct-pick');else btns[1].classList.add('correct-pick')}
+  const exp=document.getElementById('tfExp');exp.className='quiz-explanation '+(correct?'correct-exp':'incorrect-exp')+' show';
+  document.getElementById('tfExpL').textContent=correct?'Correct!':'Incorrect';
+  document.getElementById('tfExpT').textContent=q.explanation;
+  const p=loadProgress();if(!p.tfHistory[q.category])p.tfHistory[q.category]={correct:0,total:0};p.tfHistory[q.category].total++;if(correct)p.tfHistory[q.category].correct++;saveProgress(p);
+  setTimeout(()=>{tfIdx++;if(tfIdx>=tfPool.length)showTFComplete();else showTFQ()},1800)
+}
+function showTFComplete(){
+  document.getElementById('tfActive').style.display='none';document.getElementById('tfComplete').style.display='block';
+  const pct=Math.round(tfScore/tfPool.length*100);document.getElementById('tfFinalScore').textContent=pct+'%';
+  document.getElementById('tfFinalMsg').textContent=pct>=80?'Excellent!':pct>=60?'Good!':'Keep at it!';
+  document.getElementById('tfFinalDetail').textContent=tfScore+'/'+tfPool.length+' correct';
 }
 
-function selectAnswer(idx) {
-  if (quizLocked) return;
-  quizLocked = true;
-  quizAnswered++;
-
-  const q = shuffledQuiz[currentQuiz];
-  const options = document.querySelectorAll('.quiz-option');
-  const expEl = document.getElementById('qExplanation');
-  const expLabel = document.getElementById('qExpLabel');
-  const expText = document.getElementById('qExpText');
-
-  options.forEach((btn, i) => {
-    btn.classList.add('disabled');
-    if (i === q.correct) btn.classList.add('correct');
-  });
-
-  if (idx === q.correct) {
-    quizScore++;
-    expEl.className = 'quiz-explanation correct-exp show';
-    expLabel.textContent = 'Correct!';
-  } else {
-    options[idx].classList.add('incorrect');
-    expEl.className = 'quiz-explanation incorrect-exp show';
-    expLabel.textContent = 'Incorrect';
-  }
-  expText.textContent = q.explanation;
-
-  document.getElementById('qScore').textContent = `Score: ${quizScore} / ${quizAnswered}`;
-  document.getElementById('btnNextQ').classList.add('show');
-
-  // Track quiz category performance
-  const progress = loadProgress();
-  if (!progress.quizHistory[q.category]) progress.quizHistory[q.category] = { correct: 0, total: 0 };
-  progress.quizHistory[q.category].total++;
-  if (idx === q.correct) progress.quizHistory[q.category].correct++;
-  saveProgress(progress);
+// STUDY NOTES
+function buildNotesList(){
+  const c=document.getElementById('notesList'),a=document.getElementById('noteActive');a.style.display='none';c.style.display='block';c.innerHTML='';
+  studyNotes.forEach((n,i)=>{const d=document.createElement('div');d.className='note-card';d.innerHTML='<span class="badge '+n.categoryClass+'">'+n.category+'</span><div class="note-title" style="margin-top:8px">'+n.title+'</div><div class="note-desc">'+n.desc+'</div>';d.onclick=()=>openNote(i);c.appendChild(d)});
+}
+function openNote(idx){
+  const n=studyNotes[idx];document.getElementById('notesList').style.display='none';
+  const el=document.getElementById('noteActive');el.style.display='block';
+  el.innerHTML='<span class="btn-back-link" onclick="buildNotesList()">Back to notes</span><div class="note-content"><h2>'+n.title+'</h2>'+n.content+'</div>';
 }
 
-function nextQuestion() {
-  currentQuiz++;
-  if (currentQuiz >= shuffledQuiz.length) {
-    showQuizComplete();
-  } else {
-    loadQuizQuestion();
-  }
+// PROGRESS
+function updateStreak(p){const t=new Date().toISOString().slice(0,10);if(p.lastDate===t)return;if(p.lastDate){const d=Math.floor((new Date(t)-new Date(p.lastDate))/864e5);p.streak=d===1?p.streak+1:1}else p.streak=1;p.lastDate=t}
+function updateProgressScreen(){
+  const p=loadProgress(),m=p.mastered.length,t=flashcards.length,pct=t?Math.round(m/t*100):0;
+  document.getElementById('statMastered').textContent=m;document.getElementById('statQuizScore').textContent=p.bestScore+'%';
+  document.getElementById('statStudied').textContent=p.studied.length;document.getElementById('statStreak').textContent=p.streak;
+  document.getElementById('masteryFill').style.width=pct+'%';document.getElementById('masteryCount').textContent=m+'/'+t;document.getElementById('masteryPct').textContent=pct+'%';
+  const cats={};flashcards.forEach(c=>{if(!cats[c.category])cats[c.category]={total:0,mastered:0,css:c.categoryClass};cats[c.category].total++;if(p.mastered.includes(c.id))cats[c.category].mastered++});
+  const el=document.getElementById('catBreakdown');el.innerHTML='';
+  for(const[name,d]of Object.entries(cats)){const qd=p.quizHistory[name];let qi='--';if(qd&&qd.total)qi=Math.round(qd.correct/qd.total*100)+'%';const mp=Math.round(d.mastered/d.total*100);
+    el.innerHTML+='<div class="cat-row"><span class="cat-name"><span class="badge '+d.css+'">'+name+'</span></span><div class="cat-bar"><div class="fill" style="width:'+mp+'%"></div></div><span class="cat-score">'+d.mastered+'/'+d.total+' | Quiz: '+qi+'</span></div>'}
 }
+function resetProgress(){if(confirm('Reset all progress?')){localStorage.removeItem('bcse_v3');updateProgressScreen()}}
 
-function showQuizComplete() {
-  document.getElementById('quizActive').style.display = 'none';
-  document.getElementById('quizComplete').style.display = 'block';
-
-  const pct = Math.round((quizScore / shuffledQuiz.length) * 100);
-  document.getElementById('finalScore').textContent = pct + '%';
-
-  if (pct === 100) {
-    document.getElementById('finalMessage').textContent = 'Perfect Score!';
-    document.getElementById('finalDetail').textContent = 'You nailed every question. You\'re well-prepared!';
-  } else if (pct >= 70) {
-    document.getElementById('finalMessage').textContent = 'Great Work!';
-    document.getElementById('finalDetail').textContent = `You got ${quizScore}/${shuffledQuiz.length} correct. Review the ones you missed!`;
-  } else {
-    document.getElementById('finalMessage').textContent = 'Keep Studying!';
-    document.getElementById('finalDetail').textContent = `You got ${quizScore}/${shuffledQuiz.length} correct. Review the flashcards and try again.`;
-  }
-
-  // Save best score
-  const progress = loadProgress();
-  if (pct > progress.bestScore) {
-    progress.bestScore = pct;
-    saveProgress(progress);
-  }
-}
-
-// ===== PROGRESS =====
-function updateStreak(progress) {
-  const today = new Date().toISOString().slice(0, 10);
-  if (progress.lastDate === today) return;
-
-  if (progress.lastDate) {
-    const last = new Date(progress.lastDate);
-    const now = new Date(today);
-    const diff = Math.floor((now - last) / 86400000);
-    if (diff === 1) {
-      progress.streak++;
-    } else if (diff > 1) {
-      progress.streak = 1;
-    }
-  } else {
-    progress.streak = 1;
-  }
-  progress.lastDate = today;
-}
-
-function updateGlobalProgress() {
-  const progress = loadProgress();
-  const pct = (progress.mastered.length / flashcards.length) * 100;
-  document.getElementById('globalProgress').style.width = pct + '%';
-}
-
-function updateProgressScreen() {
-  const progress = loadProgress();
-  const masteredCount = progress.mastered.length;
-  const total = flashcards.length;
-  const pct = Math.round((masteredCount / total) * 100);
-
-  document.getElementById('statMastered').textContent = masteredCount;
-  document.getElementById('statQuizScore').textContent = progress.bestScore + '%';
-  document.getElementById('statStudied').textContent = progress.studied.length;
-  document.getElementById('statStreak').textContent = progress.streak;
-
-  document.getElementById('masteryFill').style.width = pct + '%';
-  document.getElementById('masteryCount').textContent = `${masteredCount} / ${total} cards`;
-  document.getElementById('masteryPct').textContent = pct + '%';
-
-  // Category breakdown
-  const cats = {};
-  flashcards.forEach(c => {
-    if (!cats[c.category]) cats[c.category] = { total: 0, mastered: 0, cssClass: c.categoryClass };
-    cats[c.category].total++;
-    if (progress.mastered.includes(c.id)) cats[c.category].mastered++;
-  });
-
-  // Add quiz performance
-  const container = document.getElementById('catBreakdown');
-  container.innerHTML = '';
-  for (const [name, data] of Object.entries(cats)) {
-    const quizData = progress.quizHistory[name];
-    let quizInfo = '';
-    if (quizData && quizData.total > 0) {
-      quizInfo = ` | Quiz: ${quizData.correct}/${quizData.total}`;
-    }
-    container.innerHTML += `
-      <div class="cat-row">
-        <span class="cat-name"><span class="badge ${data.cssClass}">${name}</span></span>
-        <span class="cat-score">${data.mastered}/${data.total} mastered${quizInfo}</span>
-      </div>`;
-  }
-}
-
-function resetProgress() {
-  if (confirm('Reset all progress? This cannot be undone.')) {
-    localStorage.removeItem('bcse_progress');
-    updateProgressScreen();
-    updateGlobalProgress();
-    loadCard();
-  }
-}
-
-// ===== INIT =====
-document.addEventListener('DOMContentLoaded', () => {
-  loadCard();
-  shuffledQuiz = shuffleArray(quizQuestions);
-  updateGlobalProgress();
-});
+// INIT
+document.addEventListener('DOMContentLoaded',()=>buildDashboard());
 </script>
 </body>
 </html>
